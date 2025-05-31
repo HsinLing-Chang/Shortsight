@@ -1,0 +1,43 @@
+.line {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 1rem 0;
+}
+.back-btn {
+  margin-top: 1rem;
+}
+.back-btn a {
+  text-decoration: none;
+  color: black;
+}
+.analytics-container {
+  display: flex;
+  flex-direction: column;
+}
+.link-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 5px;
+}
+.link-info {
+  display: flex;
+  justify-content: space-between;
+}
+.destination,
+.short-key,
+.link-title {
+  display: block;
+  color: black;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.destination {
+  word-break: break-all;
+}
+.short-key {
+  color: blue;
+}

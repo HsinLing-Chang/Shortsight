@@ -1,0 +1,50 @@
+.create-link-container {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 0 3rem;
+  margin: 0 auto;
+  max-width: 816px;
+}
+.create-link-form {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 4rem;
+}
+.create-link-form form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 1.5rem;
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+}
+.input {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.width-300 {
+  width: 300px;
+}
+.margin-t {
+  margin-top: 0.5rem;
+}
+.slash {
+  height: 100%;
+  padding: 2rem 0.6rem 0.2rem 0.6rem;
+}
+.flex-1 {
+  flex: 1;
+}
+
+.mysite {
+  background-color: rgb(220, 220, 220);
+  font-size: 1.25rem;
+  align-items: center;
+  border: 1px solid #666666;
+}
+.just-self {
+  align-self: flex-end;
+}

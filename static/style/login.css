@@ -1,0 +1,45 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 816px;
+  padding: 1rem 2rem;
+  margin: 0 auto;
+}
+.form-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 800px;
+  padding: 0 4rem;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 10px;
+}
+
+.login-form > div {
+  margin-bottom: 0.5 rem;
+}
+.input {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+.just-self {
+  align-self: flex-end;
+}
+.btn-section {
+  display: flex;
+  justify-content: space-between;
+}
+.align-self {
+  align-self: center;
+}
+.mg-h-auto {
+  margin: 5rem 0;
+}
+.signin-atag,
+.signup-atag {
+  color: blue;
+}

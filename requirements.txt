@@ -1,0 +1,15 @@
+fastapi
+pydantic
+pydantic[email]
+uvicorn
+sqlalchemy
+pyjwt
+passlib[bcrypt]
+bcrypt<4
+boto3
+python-dotenv
+mysql-connector-python
+aioredis
+redis
+qrcode[pil]
+hashids

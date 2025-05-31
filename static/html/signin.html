@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="/static/style/nav.css" />
+    <link rel="stylesheet" href="/static/style/login.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="body-container">
+      <aside class="side-bar">
+        <div class="logo">LOGO</div>
+        <div class="shrink-button">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <ul class="nav-bar-ul">
+          <li class="home icon-only" data-text="Home">
+            <i class="fa-solid fa-house"></i>
+          </li>
+
+          <li class="links icon-only" data-text="Links">
+            <i class="fa-solid fa-link"></i>
+          </li>
+
+          <li class="qrcodes icon-only" data-text="QR codes">
+            <i class="fa-solid fa-qrcode"></i>
+          </li>
+
+          <li class="analytics icon-only" data-text="Analytics">
+            <i class="fa-solid fa-chart-simple"></i>
+          </li>
+
+          <li class="campaign icon-only" data-text="Campaign">
+            <i class="fa-solid fa-chart-line"></i>
+          </li>
+        </ul>
+      </aside>
+      <main class="index-main">
+        <div class="top-nav">
+          <span class="login-state">Sign In</span>
+        </div>
+        <div class="main-content-wrapper">
+          <div class="page-container">
+            <div class="page">
+              <div class="page-real">
+                <!-- 頁面插入位置 -->
+                <div class="login-container">
+                  <div class="mg-b2">
+                    <h1>Sign in</h1>
+                  </div>
+                  <div class="form-wrapper">
+                    <form class="sign-in-form form mg-h-auto pd-2 card-shadow">
+                      <div>
+                        <label class="font-ml" for="email">Email</label>
+                        <p>
+                          <input
+                            class="input hp-40 mg-t1 b-rad-5 email"
+                            type="email"
+                            name="email"
+                            id="email"
+                            required
+                          />
+                        </p>
+                      </div>
+                      <div>
+                        <label class="font-ml" for="password">Password</label>
+                        <p>
+                          <input
+                            class="input hp-40 mg-t1 b-rad-5 password"
+                            type="password"
+                            name="password"
+                            id="password"
+                            required
+                          />
+                        </p>
+                      </div>
+                      <p id="signin-msg" class="font-rg h-1"></p>
+                      <div class="btn-section mg-t1">
+                        <div class="align-self">
+                          <a class="signup-atag" href="/signup">Sign up here</a>
+                        </div>
+                        <button class="just-self btn font-rg">Sign in</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script defer type="module" src="/static/js/main.js"></script>
+  </body>
+</html>

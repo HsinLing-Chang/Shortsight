@@ -1,0 +1,43 @@
+.line {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 1rem 0;
+}
+.links-header {
+  display: flex;
+  justify-content: space-between;
+}
+.link-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 1rem 2rem;
+  margin-bottom: 2rem;
+  border-radius: 5px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1),
+    -5px -5px 10px rgba(255, 255, 255, 0.7);
+}
+.link-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.destination,
+.short-key,
+.link-title {
+  display: block;
+
+  color: black;
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.destination {
+  word-break: break-all;
+}
+.short-key {
+  color: blue;
+}
+.create {
+  width: 100px;
+}
