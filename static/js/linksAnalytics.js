@@ -15,7 +15,12 @@ async function getLinksInfo() {
     const destination = document.querySelector(".destination");
     const createDate = document.querySelector(".created-at > span");
     title.textContent = linkData.data.title;
-    shortKey.textContent = `https://s.ppluchuli.com/s/${linkData.data.short_key}`;
+
+    const shortCode = linkData.data.short_key
+      ? linkData.data.short_key
+      : linkData.data.uuid;
+
+    shortKey.textContent = `https://s.ppluchuli.com/s/${shortCode}`;
     destination.textContent = linkData.data.target_url;
     destination.href = linkData.data.target_url;
     destination.target = "_blank";

@@ -42,7 +42,7 @@ class UrlMapping(Base):
     title: Mapped[str] = mapped_column(
         VARCHAR(255), nullable=False)
     uuid: Mapped[str] = mapped_column(
-        VARCHAR(5), nullable=False, unique=True)
+        VARCHAR(6), nullable=False, unique=True)
     short_key: Mapped[str] = mapped_column(
         VARCHAR(30), nullable=True, unique=True)
     target_url: Mapped[str] = mapped_column(
@@ -61,7 +61,7 @@ class UrlMapping(Base):
 
 
 class UTMParams(Base):
-    __tablename__ = "utm_patams"
+    __tablename__ = "utm_params"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     mapping_id: Mapped[int] = mapped_column(
         INTEGER, ForeignKey("url_mapping.id", ondelete="CASCADE"), nullable=True, index=True)
