@@ -4,13 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 REDIS_URL = os.getenv("REDIS_URL")
 
-# r = redis.Redis(
-#     host='redis-15017.c54.ap-northeast-1-2.ec2.redns.redis-cloud.com',
-#     port=15017,
-#     decode_responses=True,
-#     username="default",
-#     password="gEETbzXlb7AxMxC38zczenPKYQCw7nnM",
-# )
 
 # 建立連線池
 
