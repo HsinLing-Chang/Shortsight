@@ -1,7 +1,8 @@
 from pydantic import BaseModel,  HttpUrl, ConfigDict,  field_serializer, RootModel, field_validator
-from typing import Annotated, Optional
+from typing import Optional
 from fastapi import HTTPException
 from datetime import datetime
+from schemas.utm_params_schema import UTM_form
 import re
 
 
@@ -9,6 +10,7 @@ class URLForm(BaseModel):
     title: str
     short_key: Optional[str] = None
     target_url:  HttpUrl
+    utm_params: Optional[UTM_form] = None
 
     @field_validator("short_key")
     def vaildate_short_key(cls, val):

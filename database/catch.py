@@ -6,8 +6,6 @@ REDIS_URL = os.getenv("REDIS_URL")
 
 
 # 建立連線池
-
-
 class RedisHandler():
     def __init__(self):
         try:

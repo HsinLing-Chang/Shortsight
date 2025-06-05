@@ -5,16 +5,16 @@ const navItem = [
   { element: document.querySelector(".analytics"), path: "/analytics" },
   { element: document.querySelector(".campaign"), path: "/campaign" },
 ];
-const token = localStorage.getItem("access_token");
+// const token = localStorage.getItem("access_token");
 
 navItem.forEach(({ element, path }) => {
   if (!element) return;
   element.addEventListener("click", (e) => {
     e.preventDefault();
-    if (!token) {
-      window.location.href = "signin";
-      return;
-    }
+    // if (!token) {
+    //   window.location.href = "signin";
+    //   return;
+    // }
     window.location.href = path;
   });
 });
@@ -38,7 +38,7 @@ class SideBarController {
     this.path = window.location.pathname.split("/")[1];
 
     if (this.signOutBtn) {
-      this.signOutBtn.addEventListener("click", () => this._signOut());
+      this.signOutBtn.addEventListener("click", async () => this._signOut());
     }
     this.targetPage();
   }
@@ -56,9 +56,17 @@ class SideBarController {
     });
   }
 
-  _signOut() {
-    localStorage.removeItem("access_token");
-    location.href = "/signin";
+  async _signOut() {
+    const response = await fetch("/api/user/signout", {
+      credentials: "include",
+      method: "POST",
+    });
+    const result = await response.json();
+    if (result.ok) {
+      alert("Logout successfully.");
+
+      location.href = "/";
+    }
   }
   _bindEvents() {
     this.btn.addEventListener("click", () => this.toggle());

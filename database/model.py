@@ -42,7 +42,7 @@ class UrlMapping(Base):
     title: Mapped[str] = mapped_column(
         VARCHAR(255), nullable=False)
     uuid: Mapped[str] = mapped_column(
-        VARCHAR(5), nullable=False, unique=True)
+        VARCHAR(6), nullable=False, unique=True)
     short_key: Mapped[str] = mapped_column(
         VARCHAR(30), nullable=True, unique=True)
     target_url: Mapped[str] = mapped_column(
@@ -55,13 +55,13 @@ class UrlMapping(Base):
     events: Mapped[list["EventLog"]] = relationship(
         "EventLog", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True, uselist=True)
     utm: Mapped["UTMParams"] = relationship(
-        "UTMParams", cascade="all, delete-orphan", passive_deletes=True)
+        "UTMParams", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True, uselist=False)
     qr_code: Mapped["QRCode"] = relationship(
         "QRCode", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True,  uselist=False)
 
 
 class UTMParams(Base):
-    __tablename__ = "utm_patams"
+    __tablename__ = "utm_params"
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     mapping_id: Mapped[int] = mapped_column(
         INTEGER, ForeignKey("url_mapping.id", ondelete="CASCADE"), nullable=True, index=True)
@@ -73,6 +73,9 @@ class UTMParams(Base):
     utm_term: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
     # A/B Test
     utm_content: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
+    # relationship
+    mapping: Mapped["UrlMapping"] = relationship(
+        "UrlMapping", back_populates="utm")
 
 
 class QRCode(Base):

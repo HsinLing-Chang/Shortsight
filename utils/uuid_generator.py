@@ -27,7 +27,7 @@ from database.catch import redis_handler
 
 
 class UuidGenerator:
-    def __init__(self, salt: str = "pass", min_length: int = 5):
+    def __init__(self, salt: str = "pass", min_length: int = 6):
         self.alphabet = string.digits + string.ascii_uppercase + string.ascii_lowercase
         self.hashids = Hashids(
             salt=salt, min_length=min_length, alphabet=self.alphabet)

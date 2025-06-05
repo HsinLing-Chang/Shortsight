@@ -11,7 +11,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/create-links.css" />
+    <link rel="stylesheet" href="/static/style/create-qrcodes.css" />
     <style>
       body {
         visibility: hidden;
@@ -62,14 +62,14 @@
               <div class="page-real">
                 <!-- 頁面插入位置 -->
                 <div class="back-btn">
-                  <a href="/links"> ← back to list</a>
+                  <a href="/qrcodes"> ← back to list</a>
                 </div>
-                <div class="create-link-container">
+                <div class="create-qrcode-container">
                   <div>
-                    <h1 class="mg-b2">Create a link</h1>
+                    <h1 class="mg-b2">Create a code</h1>
                   </div>
-                  <div class="create-link-form">
-                    <form id="link-form" class="card-shadow">
+                  <div class="create-qrcode-form">
+                    <form id="qrcode-form" class="card-shadow">
                       <div class="dest-section">
                         <label for="destination" class="font-ml"
                           >Destination</label
@@ -102,7 +102,7 @@
                           <div class="width-300 flex-col flex-1">
                             <label class="font-ml">Domain</label>
                             <div class="mg-t05 hp-40 mysite flex-row">
-                              s.ppluchuli.com/s
+                              https://s.ppluchuli.com/s
                             </div>
                           </div>
                           <h1 class="slash">/</h1>
@@ -179,10 +179,12 @@
                           </div>
                         </div>
                       </div>
-                      <p id="error" class="mg-t1 font-rg h-1"></p>
+                      <p id="qr-error" class="mg-t1 font-rg h-1"></p>
                       <div class="btn-container mg-t1">
                         <div class="loader"></div>
-                        <button class="btn font-rg">Create my link</button>
+                        <button class="qr-create-btn btn font-rg">
+                          Create my code
+                        </button>
                       </div>
                     </form>
                   </div>
