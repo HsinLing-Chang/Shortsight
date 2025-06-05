@@ -11,7 +11,8 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/links-analytics.css" />
+    <link rel="stylesheet" href="/static/style/edit-links.css" />
+
     <style>
       body {
         visibility: hidden;
@@ -33,6 +34,7 @@
             <div class="active-indicator"></div>
             <i class="fa-solid fa-house"></i>
           </li>
+
           <li class="links icon-only" data-text="Links">
             <div class="active-indicator"></div>
             <i class="fa-solid fa-link"></i>
@@ -45,8 +47,8 @@
             <div class="active-indicator"></div>
             <i class="fa-solid fa-chart-simple"></i>
           </li>
+
           <li class="campaign icon-only" data-text="Campaign">
-            <div class="active-indicator"></div>
             <i class="fa-solid fa-chart-line"></i>
           </li>
         </ul>
@@ -61,43 +63,51 @@
               <div class="page-real">
                 <!-- 頁面插入位置 -->
                 <div class="back-btn">
-                  <a href="/links"> ← back to list</a>
+                  <a class="back-to-list"> ← back to list</a>
                 </div>
-                <div class="line"></div>
-                <div class="analytics-container">
-                  <div class="link-card">
-                    <div class="link-info">
-                      <div class="url-info">
-                        <h3 class="title padding-bt font-la"></h3>
-                        <p class="short-key padding-bt font-ml"></p>
-                        <a class="destination padding-bt font-ml"></a>
-                      </div>
+                <div class="edit-form-container">
+                  <h1 class="mg-b1">Edit link</h1>
+                  <form class="card-shadow edit-form" action="">
+                    <label class="font-ml" for="title">Title</label>
+                    <p>
+                      <input
+                        id="title"
+                        class="input hp-40 mg-t1 b-rad-5"
+                        type="text"
+                      />
+                    </p>
 
-                      <div class="copy-btn-container">
-                        <button class="pd-05 copy-btn">
-                          <i class="fa-solid fa-copy"></i>
-                          <div class="copy-text">copy</div>
-                        </button>
-                        <div class="select-container mg-r1">
-                          <div class="drop-down-btn">...</div>
-                          <div class="drop-down">
-                            <div class="edit select">edit</div>
-                            <div class="delete select">delete</div>
-                          </div>
+                    <div class="short-link-container">
+                      <div class="flex-1">
+                        <label for="domain" class="font-ml">Domain</label>
+                        <div class="domain mg-t05 hp-40 flex-row">
+                          https://s.ppluchuli.com/s
                         </div>
                       </div>
+                      <h1 class="slash">/</h1>
+                      <div class="flex-1">
+                        <label class="font-ml" for="short-key"
+                          >Short link</label
+                        >
+                        <p>
+                          <input
+                            id="short-key"
+                            class="input mg-t05 hp-40 b-rad-5"
+                            type="text"
+                          />
+                        </p>
+                      </div>
                     </div>
+
                     <div class="line"></div>
-                    <p class="created-at">
-                      <i
-                        class="fa-solid fa-calendar"
-                        style="margin-right: 0.5rem"
-                      ></i
-                      ><span></span>
-                    </p>
-                  </div>
-                  <div>QRCODE</div>
-                  <div>Analytics</div>
+                    <p class="font-ml">Destination URL</p>
+                    <p class="destination-url input hp-40 mg-t1"></p>
+
+                    <p id="error" class="mg-t1 font-rg h-1"></p>
+                    <button class="btn just-self btn font-rg save-btn">
+                      Save
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>

@@ -37,11 +37,29 @@ async def signup(user_info: UserInfo, db: Session = Depends(get_db)):
 
 
 @router.post("/user/signin")
-async def signin(response:  Response, user_form: UserSignInForm, db: Session = Depends(get_db), ):
+async def signin(user_form: UserSignInForm, db: Session = Depends(get_db), ):
     user = await JWTtoken.authenticate_user(user_form.email, user_form.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password.")
     token = JWTtoken.create_access_token(
         user.email, expires_delta=timedelta(days=7))
-    return JSONResponse(content={"ok": True, "token": token})
+    response = JSONResponse(content={"ok": True}, status_code=200)
+    response.set_cookie(key="access_token", value=token, httponly=True,
+                        max_age=60*60*24*7, expires=60*60*24*7, secure=False, samesite="lax")
+
+    return response
+
+
+@router.post("/user/signout")
+def sign_out(response: Response):
+    response = JSONResponse(content={"ok": True})
+    response.delete_cookie(key="access_token")
+
+    return response
+
+
+@router.get("/user/check_login")
+def checkLoginState(user=Depends(JWTtoken.get_current_user)):
+    if user:
+        return JSONResponse(content={"ok": True})

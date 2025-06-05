@@ -55,7 +55,7 @@ class UrlMapping(Base):
     events: Mapped[list["EventLog"]] = relationship(
         "EventLog", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True, uselist=True)
     utm: Mapped["UTMParams"] = relationship(
-        "UTMParams", cascade="all, delete-orphan", passive_deletes=True)
+        "UTMParams", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True, uselist=False)
     qr_code: Mapped["QRCode"] = relationship(
         "QRCode", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True,  uselist=False)
 
@@ -73,6 +73,9 @@ class UTMParams(Base):
     utm_term: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
     # A/B Test
     utm_content: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
+    # relationship
+    mapping: Mapped["UrlMapping"] = relationship(
+        "UrlMapping", back_populates="utm")
 
 
 class QRCode(Base):

@@ -11,7 +11,8 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/qrcodes.css" />
+    <link rel="stylesheet" href="/static/style/qrcodesDetail.css" />
+
     <style>
       body {
         visibility: hidden;
@@ -61,37 +62,28 @@
             <div class="page">
               <div class="page-real">
                 <!-- 頁面插入位置 -->
-                <div class="header">
-                  <h1>QR codes</h1>
-                  <a href="/qrcodes/create"
-                    ><button class="btn create font-rg">Create</button></a
-                  >
+                <div class="back-btn">
+                  <a href="/qrcodes"> ← back to list</a>
                 </div>
                 <div class="line"></div>
-                <div class="qrcode-card-container">
-                  <!-- <div class="qrcode-card mg-b2">
-                    <div class="qr-img-container mg-r3">
-                      <img
-                        src="https://dcymcz24d7wyx.cloudfront.net/qrcodes/ymVX2.PNG"
-                      />
-                    </div>
+                <div class="qrcode-analytics-container">
+                  <div class="qrcode-analytics-card card-shadow">
                     <div class="card-content">
-                      <div class="content-top">
-                        <div class="top-info">
-                          <h2 class="mg-b05">溫時初就是那姦夫</h2>
-                          <p class="mg-b05">website</p>
-                        </div>
-
-                        <div class="other-fucntion">
+                      <div class="top-content">
+                        <h1 class="mg-b1 qr-title"></h1>
+                        <div class="other-function">
                           <div class="drop-down icon">
                             <i class="fa-solid fa-caret-down"></i>
                             <div class="more">
-                              <div>Update</div>
-                              <div>Delete</div>
+                              <div>Edit</div>
+                              <div class="delete-btn">Delete</div>
                             </div>
                           </div>
                           <div class="download-image icon">
-                            <i class="fa-solid fa-download"></i>
+                            <a class="download"
+                              ><i class="fa-solid fa-download"></i
+                            ></a>
+
                             <div class="more">
                               <div>Download JEPG</div>
                               <div>Download PNG</div>
@@ -100,30 +92,38 @@
                           </div>
                           <div class="view-detail pd-1">
                             <i class="fa-solid fa-chart-simple mg-r1"></i>
-                            <span> View Detail</span>
+                            <span>View short link</span>
                           </div>
                         </div>
                       </div>
-
-                      <div class="content-bottom">
+                      <div>
+                        <h3 class="mg-b1">Website</h3>
                         <div class="link-data">
-                          <a
-                            >https://developer.mozilla.org/en-US/docs/Web/CSS/@media</a
-                          >
+                          <i
+                            class="fa-solid fa-arrow-up-right-from-square mg-r05"
+                          ></i>
+                          <a class="qr-destination"></a>
                         </div>
-                        <div class="botton-info mg-t1">
-                          <div class="short-link mg-r1">
-                            <i class="fa-solid fa-paperclip mg-r05"></i>
-                            <p>https://s.ppluchuli.com/s/test20</p>
-                          </div>
-                          <div class="created-at">
-                            <i class="fa-solid fa-calendar mg-r05"></i>
-                            <p>2025-05-01</p>
-                          </div>
+                      </div>
+                      <div class="line"></div>
+                      <div class="bottom-content">
+                        <div class="create-at mg-r1">
+                          <i class="fa-solid fa-calendar mg-r05"></i>
+                          <p class="qr-create-at"></p>
+                        </div>
+                        <div class="short-link">
+                          <i class="fa-solid fa-paperclip mg-r05"></i>
+                          <a class="qr-short-key"></a>
                         </div>
                       </div>
                     </div>
-                  </div> -->
+                    <div class="qr-img-container mg-l1">
+                      <img
+                        class="qr-img"
+                        src="https://dcymcz24d7wyx.cloudfront.net/qrcodes/ymVX2.PNG"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

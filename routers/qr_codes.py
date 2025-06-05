@@ -1,8 +1,8 @@
+from schemas.utm_params_schema import UTM_form
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-from pydantic import BaseModel, StringConstraints, HttpUrl
-from database.model import UrlMapping, QRCode
+from pydantic import BaseModel, StringConstraints, HttpUrl, field_validator
+from database.model import UrlMapping, QRCode, UTMParams
 from utils.dependencies import get_db
 from utils.security import JWTtoken
 from utils.S3 import aws_s3
@@ -13,6 +13,7 @@ from typing import Annotated, List, Optional
 from utils.uuid_generator import uuid_generator
 import qrcode
 from datetime import datetime
+import re
 import io
 from pydantic import ConfigDict,  field_serializer, RootModel
 router = APIRouter(prefix="/api")
@@ -20,9 +21,21 @@ router = APIRouter(prefix="/api")
 
 class QrcodeForm(BaseModel):
     title: str
-    short_key: Annotated[Optional[str], StringConstraints(
-        min_length=4, max_length=30, pattern=r"^[A-Za-z0-9_-]+$")] = None
+    short_key: Optional[str] = None
     target_url:  HttpUrl
+    utm_params: Optional[UTM_form] = None
+
+    @field_validator("short_key")
+    def vaildate_short_key(cls, val):
+        if val is None:
+            return val
+        if len(val) > 30:
+            raise HTTPException(
+                status_code=400, detail="Custom url must not exceed 30 characters in length.")
+        if not re.match(r'^[A-Za-z0-9_-]+$', val):
+            raise HTTPException(status_code=400,
+                                detail="Custom url may only contain English letters, numbers, underscores (_), or hyphens (-).")
+        return val
 
 
 class QrcodeResponse(BaseModel):
@@ -75,14 +88,14 @@ def create_qrcode_image(uuid):
 
 
 @router.post("/qrcodes")
-async def create_qr_code(qr_code_form: QrcodeForm, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
-
-    stmt = select(UrlMapping.short_key).where(
-        UrlMapping.short_key == qr_code_form.short_key)
-    existing = db.execute(stmt).scalar_one_or_none()
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Shork link 已存在")
+async def create_qr_code(url_form: QrcodeForm, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    if url_form.short_key:
+        stmt = select(UrlMapping.short_key).where(
+            UrlMapping.short_key == url_form.short_key)
+        existing = db.execute(stmt).scalar_one_or_none()
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Shork link 已存在")
     try:
         uuid = await uuid_generator.generate_uuid()
         image_bytes = create_qrcode_image(uuid)
@@ -99,8 +112,9 @@ async def create_qr_code(qr_code_form: QrcodeForm, db: Annotated[Session, Depend
             detail=f"上傳至 S3 失敗: {e}"
         )
     try:
-        new_URL_and_QRcode = UrlMapping(user_id=current_user.id, title=qr_code_form.title, uuid=uuid,
-                                        short_key=qr_code_form.short_key, target_url=str(qr_code_form.target_url), qr_code=QRCode(image_path=CDN_path))
+        new_utm_params = url_form.utm_params.to_model() if url_form.utm_params else None
+        new_URL_and_QRcode = UrlMapping(user_id=current_user.id, title=url_form.title, uuid=uuid,
+                                        short_key=url_form.short_key, target_url=str(url_form.target_url), utm=new_utm_params, qr_code=QRCode(image_path=CDN_path))
         db.add(new_URL_and_QRcode)
         db.commit()
         data = LinkWithQRcodeResponse.model_validate(

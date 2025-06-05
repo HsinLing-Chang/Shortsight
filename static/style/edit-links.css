@@ -1,0 +1,43 @@
+.edit-form-container {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  width: 800px;
+  padding: 2rem;
+}
+
+.edit-form-container form {
+  display: flex;
+  flex-direction: column;
+  padding: 2rem;
+  width: 100%;
+  margin: 0 auto;
+  background-color: rgb(255, 255, 255);
+  border-radius: 10px;
+}
+.short-link-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.domain {
+  background-color: rgb(220, 220, 220);
+  font-size: 1.25rem;
+  align-items: center;
+  border: 1px solid #666666;
+}
+.destination-url {
+  word-wrap: break-word;
+  text-decoration: underline;
+}
+.input {
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+.line {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 1rem 0 2rem;
+}
+.just-self {
+  align-self: flex-end;
+}

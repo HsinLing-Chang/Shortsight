@@ -1,36 +1,37 @@
-class CreateLink {
+class CreateQrcodeForm {
   constructor() {
-    if (!location.pathname.startsWith("/links/create")) {
+    if (!location.pathname.startsWith("/qrcodes/create")) {
       return;
     }
-    this.destination = document.querySelector("#destination");
-    this.title = document.querySelector("#title");
-    this.customUrl = document.querySelector("#custom-url");
-
+    this.utmCheckBox = document.querySelector(".check-box");
     this.utmForm = document.querySelector(".utm-form");
     this.utmHeader = document.querySelector(".UTM-header");
-    this.sourceInput = document.querySelector(".utm-source");
-    this.mediumInput = document.querySelector(".utm-medium");
-    this.campaignInput = document.querySelector(".utm-campaign");
-    this.contentInput = document.querySelector(".utm-content");
-    this.termInput = document.querySelector(".utm-term");
-
-    this.utmCheckBox = document.querySelector(".check-box");
+    this.errorMsg = document.querySelector("#qr-error");
     this.loader = document.querySelector(".loader");
-    this.errorMsg = document.querySelector("#error");
-    this.form = document.querySelector("#link-form");
-    if (this.form) {
-      this.form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        await this.createNewLink();
-      });
-    }
     if (this.utmCheckBox) {
       this.utmCheckBox.addEventListener("change", () => {
         this.isUtm();
       });
+      this.title = document.querySelector("#title");
+      this.destination = document.querySelector("#destination");
+      this.shortKey = document.querySelector("#custom-url");
+
+      this.sourceInput = document.querySelector(".utm-source");
+      this.mediumInput = document.querySelector(".utm-medium");
+      this.campaignInput = document.querySelector(".utm-campaign");
+      this.contentInput = document.querySelector(".utm-content");
+      this.termInput = document.querySelector(".utm-term");
+
+      this.createQrcodeBtn = document.querySelector(".qr-create-btn");
+      if (this.createQrcodeBtn) {
+        this.createQrcodeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          this.createNewQrocde();
+        });
+      }
     }
   }
+
   isUtm() {
     if (this.utmCheckBox.checked) {
       this.utmForm.classList.add("display");
@@ -42,12 +43,11 @@ class CreateLink {
       this.errorMsg.textContent = "";
     }
   }
-
   getPayload() {
     return {
       title: this.title.value.trim(),
-      short_key: this.customUrl.value.trim() || undefined, //後端無此欄位
       target_url: this.destination.value.trim(),
+      short_key: this.shortKey.value.trim() || null,
       utm_params: {
         utm_source: this.sourceInput.value.trim() || null,
         utm_medium: this.mediumInput.value.trim() || null,
@@ -57,30 +57,22 @@ class CreateLink {
       },
     };
   }
-  validate() {
-    if (!this.form.reportValidity()) {
-      return false;
-    }
-    return true;
-  }
-  async createNewLink() {
+  async createNewQrocde() {
+    const payload = this.getPayload();
     try {
-      if (!this.validate()) throw Error("Form cannot be empty.");
       this.loader.classList.add("visible");
-      const payload = this.getPayload();
-      // const token = localStorage.getItem("access_token");
-      const response = await fetch("/api/links/shorten", {
-        method: "POST",
+      const responese = await fetch("/api/qrcodes", {
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          credentials: "include",
         },
+        method: "POST",
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
+      const data = await responese.json();
       if (data.ok) {
-        window.location.href = "/links";
-      } else if (data.error) {
+        location.href = "/qrcodes";
+      } else {
         throw new Error(data.message);
       }
     } catch (e) {
@@ -90,5 +82,4 @@ class CreateLink {
     }
   }
 }
-
-export default CreateLink;
+export default CreateQrcodeForm;

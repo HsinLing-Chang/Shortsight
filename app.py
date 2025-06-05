@@ -1,5 +1,5 @@
 from fastapi import FastAPI, status, HTTPException, Request
-from fastapi.responses import JSONResponse, PlainTextResponse, FileResponse
+from fastapi.responses import JSONResponse,  FileResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -12,13 +12,13 @@ app.include_router(redirect_url.router)
 
 app.include_router(qr_codes.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["http://localhost:5173"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8000", "https://s.ppluchuli.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/", include_in_schema=False)
@@ -40,21 +40,35 @@ async def index(request: Request):
 async def index(request: Request):
     return FileResponse("./static/html/links.html", media_type="text/html")
 
+
 @app.get("/links/create", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./static/html/createLinks.html", media_type="text/html")
-    
+
+
+@app.get("/links/update", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/editLinks.html", media_type="text/html")
+
+
 @app.get("/links/{uuid}", include_in_schema=False)
 async def index(request: Request,  uuid: str):
     return FileResponse("./static/html/links-analytics.html", media_type="text/html")
 
 
-
-
-
 @app.get("/qrcodes", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./static/html/qrcodes.html", media_type="text/html")
+
+
+@app.get("/qrcodes/create", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/createQrcodes.html", media_type="text/html")
+
+
+@app.get("/qrcodes/{id}", include_in_schema=False)
+async def index(request: Request, id: int):
+    return FileResponse("./static/html/qrcodesDetail.html", media_type="text/html")
 
 
 @app.get("/analytics", include_in_schema=False)

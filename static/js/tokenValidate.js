@@ -1,13 +1,11 @@
-(function () {
-  const token = localStorage.getItem("access_token");
-  if (!token) {
+(async function () {
+  const responese = await fetch("/api/user/check_login");
+  const result = await responese.json();
+  if (!result.ok) {
     window.location.replace("/signin");
     return;
   }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    document.body.style.visibility = "visible";
-    const loginState = document.querySelector(".login-state");
-    loginState.textContent = "Sign Out";
-  });
+  document.body.style.visibility = "visible";
+  const loginState = document.querySelector(".login-state");
+  loginState.textContent = "Sign Out";
 })();

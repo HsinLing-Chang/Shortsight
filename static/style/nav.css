@@ -7,11 +7,29 @@
 .h-1 {
   height: 1rem;
 }
+.mg-l1 {
+  margin-left: 1rem;
+}
+.mg-r05 {
+  margin-right: 0.5rem;
+}
+.mg-r1 {
+  margin-right: 1rem;
+}
+.mg-r3 {
+  margin-right: 3rem;
+}
+.mg-t05 {
+  margin-top: 0.5rem;
+}
 .mg-t1 {
   margin-top: 1rem;
 }
 .mg-t2 {
   margin-top: 2rem;
+}
+.mg-t3 {
+  margin-top: 3rem;
 }
 .mg-b1 {
   margin-bottom: 1rem;
@@ -21,6 +39,9 @@
 }
 .mg-b2 {
   margin-bottom: 2rem;
+}
+.flex-1 {
+  flex: 1;
 }
 .flex-row {
   display: flex;
@@ -50,6 +71,12 @@
 .pd-15 {
   padding: 1.5rem;
 }
+.pd-05 {
+  padding: 0.5rem;
+}
+.pd-1 {
+  padding: 1rem;
+}
 .pd-2 {
   padding: 2rem;
 }
@@ -65,6 +92,10 @@
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1),
     -5px -5px 10px rgba(255, 255, 255, 0.7);
 }
+.slash {
+  height: 100%;
+  padding: 2rem 0.6rem 0.2rem 0.6rem;
+}
 .btn {
   padding: 0.5rem 1rem;
 
@@ -78,12 +109,23 @@
     background-color: rgb(51, 77, 163);
   }
 }
+.copy-btn {
+  display: flex;
+  border-color: skyblue;
+  &:hover {
+    cursor: pointer;
+  }
+}
 .back-btn {
   margin-top: 1rem;
 }
 .back-btn a {
   text-decoration: none;
   color: black;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
 }
 .body-container {
   display: flex;

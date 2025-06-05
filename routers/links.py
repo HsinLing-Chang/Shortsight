@@ -22,9 +22,15 @@ async def create_short_url(url_form: URLForm, db: Annotated[Session, Depends(get
         #     raise HTTPException(
         #         status_code=status.HTTP_400_BAD_REQUEST, detail=f"{url_form.short_key} 是系統保留字，請換一個短碼。")
         uuid = await uuid_generator.generate_uuid()
+
+        new_utm_params = url_form.utm_params.to_model() if url_form.utm_params else None
+
         mapping = UrlMapping(user_id=current_user.id, title=url_form.title, uuid=uuid,
-                             short_key=url_form.short_key, target_url=str(url_form.target_url))
+                             short_key=url_form.short_key, target_url=str(url_form.target_url), utm=new_utm_params)
+
         db.add(mapping)
+        # 建立UTM參數
+
         db.commit()
         # data = LinkResponse.model_validate(mapping).model_dump()
 
@@ -32,7 +38,7 @@ async def create_short_url(url_form: URLForm, db: Annotated[Session, Depends(get
     except IntegrityError as e:
         db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Link已存在，請重新嘗試")
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Short link already exists. Please try again.")
     except HTTPException as e:
         raise e
     except Exception as e:
@@ -69,10 +75,10 @@ async def get_link(uuid: str, db: Annotated[Session, Depends(get_db)], current_u
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.put("/links/{id}")
-async def update_link(id: int, url_form: URLForm, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+@router.put("/links/{uuid}")
+async def update_link(uuid: str, url_form: URLForm, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     try:
-        stmt = update(UrlMapping).where(UrlMapping.id == id, UrlMapping.user_id == current_user.id).values(
+        stmt = update(UrlMapping).where(UrlMapping.uuid == uuid, UrlMapping.user_id == current_user.id).values(
             short_key=url_form.short_key, target_url=str(url_form.target_url), title=url_form.title)
         result = db.execute(stmt)
         db.commit()
@@ -82,15 +88,20 @@ async def update_link(id: int, url_form: URLForm, db: Annotated[Session, Depends
         return JSONResponse(content={"ok": True}, status_code=status.HTTP_200_OK)
     except HTTPException as e:
         raise e
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Short link already exists. Please try again.")
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.delete("/links/{id}")
-async def delete_link(id: int, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+@router.delete("/links/{uuid}")
+async def delete_link(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     try:
-        stmt = delete(UrlMapping).where(UrlMapping.id == id,
+        stmt = delete(UrlMapping).where(UrlMapping.uuid == uuid,
                                         UrlMapping.user_id == current_user.id)
         result = db.execute(stmt)
         if result.rowcount == 0:
@@ -98,8 +109,10 @@ async def delete_link(id: int, db: Annotated[Session, Depends(get_db)], current_
                 status_code=404, detail="Not Found or Unauthorized")
         db.commit()
         return JSONResponse(content={"ok": True}, status_code=status.HTTP_200_OK)
+
     except HTTPException as e:
         raise e
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
