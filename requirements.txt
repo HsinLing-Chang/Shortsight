@@ -13,3 +13,4 @@ aioredis
 redis
 qrcode[pil]
 hashids
+geoip2

@@ -3,12 +3,14 @@ from fastapi.responses import JSONResponse,  FileResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routers import auth, user, redirect_url, links, qr_codes
+from routers import auth, user, redirect_url, links, qr_codes, redirect_qr_code
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(links.router)
 app.include_router(redirect_url.router)
+app.include_router(redirect_qr_code.router)
+
 
 app.include_router(qr_codes.router)
 app.mount("/static", StaticFiles(directory="static"), name="static")

@@ -76,7 +76,7 @@ class UpdateQrcode(BaseModel):
 
 def create_qrcode_image(uuid):
     try:
-        url = f"http://localhost:8000/qr/{uuid}"
+        url = f"https://s/ppluchuli.com/qr/{uuid}"
         img = qrcode.make(url)
         buf = io.BytesIO()
         img.save(buf, format="PNG")
