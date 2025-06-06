@@ -23,6 +23,7 @@ def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, D
         return RedirectResponse(url=mapping_url.target_url)
     visitor_id = str(uuid.uuid4())
     ip = get_client_ip(request)
+    print(ip)
     # referer = get_client_referer(request)
     geolocation_info = lookup_ip(ip)
     save_geo_to_db(db, geolocation_info)

@@ -14,8 +14,10 @@ class IpInfor(BaseModel):
     longitude: str | None
 
 
-def save_geo_to_db(db: Session, geo_info: IpInfor):
+def save_geo_to_db(db: Session, geo_info):
     try:
+        if isinstance(geo_info, dict):
+            geo_info = IpInfor(**geo_info)
         if not geo_info or not geo_info.ip:
             raise HTTPException(status_code=400, detail="找不到 IP info")
 

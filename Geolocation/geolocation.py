@@ -10,7 +10,7 @@ def lookup_ip(ip_address: str):
     try:
         response = reader.city(ip_address)
         return {
-            "ip_address": ip_address,
+            "ip": ip_address,
             "country": response.country.name if response.country.name else None,
             "city": response.city.name if response.city.name else None,
             "latitude": response.location.latitude if response.location.latitude else None,
