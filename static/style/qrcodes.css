@@ -8,6 +8,7 @@
 .qrcode-card {
   background-color: violet;
   display: flex;
+  align-items: center;
   padding: 2rem;
 }
 .qr-img-container {
@@ -77,6 +78,7 @@
 }
 .link-data a {
   color: black;
+  line-break: anywhere;
 }
 .botton-info,
 .botton-info > div {

@@ -7,25 +7,36 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 from database.model import UrlMapping, EventLog
 from Geolocation.geolocation import lookup_ip
-from utils.ip import get_client_ip
+from utils.client_info import get_client_ip, get_client_referer, get_client_device
 from repositories.ip import save_geo_to_db
 import uuid
-
 router = APIRouter(prefix="/qr")
 
 
-@router.get("/{short_key}")
-def redirect_qr_code(short_key: str, request: Request, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
-    visitor_id = request.cookies.get("visitor_id")
-    if not visitor_id:
-        visitor_id = str(uuid.uuid4())
+@router.get("/{short_code}")
+def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, Depends(get_db)]):
+    visitor_id = request.cookies.get("ss_visitor_id")
+    stmt = select(UrlMapping).where(UrlMapping.uuid == short_code)
+    mapping_url = db.execute(stmt).scalar_one_or_none()
+    if not mapping_url:
+        raise HTTPException(status_code=404, detail="短網址不存在")
+    if visitor_id:
+        return RedirectResponse(url=mapping_url.target_url)
+    visitor_id = str(uuid.uuid4())
     ip = get_client_ip(request)
+    # referer = get_client_referer(request)
     geolocation_info = lookup_ip(ip)
     save_geo_to_db(db, geolocation_info)
-    print(ip)
+    device_result = get_client_device(request)
+    # print("referer:"+referer)
     print(geolocation_info)
-    # stmt = select(UrlMapping).where(
-    #     or_(UrlMapping.short_key == short_key, UrlMapping.uuid == short_key))
-    # mapping_url = db.execute(stmt).scalar_one_or_none()
-    # if not mapping_url:
-    #     raise HTTPException(status_code=404, detail="短網址不存在")
+
+    new_Event = EventLog(mapping_id=mapping_url.id,
+                         visitor_id=visitor_id, event_type="scan", ip_address=ip, device_type=device_result.get("device_type"), device_browser=device_result.get("device_browser"), device_os=device_result.get("device_os"), app_source=device_result.get("app_source"))
+    db.add(new_Event)
+    db.commit()
+
+    response = RedirectResponse(url=mapping_url.target_url)
+    response.set_cookie("ss_visitor_id", visitor_id,
+                        httponly=True, secure=False, max_age=60 * 60 * 24,)
+    return response

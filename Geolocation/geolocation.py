@@ -11,10 +11,10 @@ def lookup_ip(ip_address: str):
         response = reader.city(ip_address)
         return {
             "ip_address": ip_address,
-            "country": response.country.name,
-            "city": response.city.name,
-            "latitude": response.location.latitude,
-            "longitude": response.location.longitude
+            "country": response.country.name if response.country.name else None,
+            "city": response.city.name if response.city.name else None,
+            "latitude": response.location.latitude if response.location.latitude else None,
+            "longitude": response.location.longitude if response.location.longitude else None
         }
     except geoip2.errors.AddressNotFoundError:
         return None

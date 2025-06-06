@@ -108,7 +108,11 @@ class EventLog(Base):
     # Raw
     referer: Mapped[str | None] = mapped_column(Text, nullable=True)
     ip_address: Mapped[str] = mapped_column(VARCHAR(50), nullable=True)
+    # device
     device_type: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    device_browser: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    device_os: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    app_source: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
     # relationships
     mapping: Mapped["UrlMapping"] = relationship(
         "UrlMapping", back_populates="events")
