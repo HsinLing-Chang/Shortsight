@@ -14,11 +14,11 @@ router = APIRouter(prefix="/qr")
 
 @router.get("/{short_code}")
 def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, Depends(get_db)]):
-    visitor_id = request.cookies.get(f"ss_visitor_id_{short_code}")
     stmt = select(UrlMapping).where(UrlMapping.uuid == short_code)
     mapping_url = db.execute(stmt).scalar_one_or_none()
     if not mapping_url:
         raise HTTPException(status_code=404, detail="短網址不存在")
+    visitor_id = request.cookies.get(f"ss_visitor_id_qr_{short_code}")
     if visitor_id:
         return RedirectResponse(url=mapping_url.target_url)
     visitor_id = str(uuid.uuid4())
@@ -37,6 +37,6 @@ def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, D
     db.commit()
 
     response = RedirectResponse(url=mapping_url.target_url)
-    response.set_cookie("ss_visitor_id", visitor_id,
+    response.set_cookie(f"ss_visitor_id_qr_{short_code}", visitor_id,
                         httponly=True, secure=False, max_age=60 * 60 * 24,)
     return response
