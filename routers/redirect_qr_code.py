@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from utils.dependencies import get_db
-from utils.security import JWTtoken
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from typing import Annotated
