@@ -31,6 +31,7 @@ def get_client_device(request: Request):
     )
     device_browser = user_agent.browser.family
     device_os = user_agent.os.family
+    ua = ua.lower()
     if "line" in ua:
         app_source = "LINE"
     elif "instagram" in ua:

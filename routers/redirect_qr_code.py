@@ -14,7 +14,7 @@ router = APIRouter(prefix="/qr")
 
 @router.get("/{short_code}")
 def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, Depends(get_db)]):
-    visitor_id = request.cookies.get("ss_visitor_id")
+    visitor_id = request.cookies.get(f"ss_visitor_id_{short_code}")
     stmt = select(UrlMapping).where(UrlMapping.uuid == short_code)
     mapping_url = db.execute(stmt).scalar_one_or_none()
     if not mapping_url:

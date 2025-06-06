@@ -10,8 +10,8 @@ class IpInfor(BaseModel):
     ip: str
     country: str | None
     city: str | None
-    latitude: str | None
-    longitude: str | None
+    latitude: float | None
+    longitude: float | None
 
 
 def save_geo_to_db(db: Session, geo_info):
