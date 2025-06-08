@@ -18,7 +18,8 @@
       }
     </style>
 
-    <script src="/static/js/tokenValidate.js"></script>
+    <script src="/static/js/tokenValidate.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <title>Shrotsight</title>
   </head>
   <body>
@@ -97,7 +98,13 @@
                     </p>
                   </div>
                   <div>QRCODE</div>
-                  <div>Analytics</div>
+                  <div>
+                    <div class="chart-container">
+                      <div class="click-everyday">
+                        <canvas id="click-Chart" height="400"></canvas>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,6 +113,10 @@
       </main>
     </div>
 
-    <script defer type="module" src="/static/js/main.js"></script>
+    <!-- <script defer type="module" src="/static/js/main.js"></script> -->
+    <script defer src="/static/js/navbar.js"></script>
+    <script defer src="/static/js/linksAnalytics.js"></script>
+    <script defer src="/static/js/chart.js"></script>
+  </body>
   </body>
 </html>

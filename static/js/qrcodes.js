@@ -221,4 +221,4 @@ class QrcodeCard {
   }
 }
 
-export default QrcodeCard;
+new QrcodeCard();

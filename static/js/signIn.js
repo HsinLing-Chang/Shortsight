@@ -49,5 +49,4 @@ class SignIn {
     }
   }
 }
-
-export default SignIn;
+new SignIn();

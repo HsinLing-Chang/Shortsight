@@ -103,4 +103,4 @@ class QrcodesAnalytics {
   }
 }
 
-export default QrcodesAnalytics;
+new QrcodesAnalytics();

@@ -130,30 +130,6 @@ class LinksAnalytics {
     }
   }
 }
-// const loader = new LinksAnalytics();
 
-// class ClickBtn {
-//   constructor() {
-//     this.dropDownBtn = document.querySelector(".drop-down-btn");
-//     this.dropDown = document.querySelector(".drop-down");
-//     this.edit = document.querySelector(".edit");
-//     this.delete = document.querySelector(".delete");
-//     if (this.dropDownBtn && this.edit && this.delete) {
-//       this.dropDownBtn.addEventListener("click", () => {
-//         this.clickDropDown();
-//       });
-//       this.edit.addEventListener("click", () => {
-//         this.clickUpdata();
-//       });
-//     }
-//   }
-
-//   clickDropDown() {
-//     this.dropDown.classList.toggle("display");
-//   }
-
-//   clickUpdata() {
-//     location.href = `/links/update?title=`;
-//   }
-// }
-export default LinksAnalytics;
+const analytic = new LinksAnalytics();
+analytic.load();

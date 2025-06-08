@@ -65,4 +65,4 @@ class EditLinks {
     }
   }
 }
-export default EditLinks;
+new EditLinks();

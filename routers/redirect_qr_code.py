@@ -18,10 +18,12 @@ def redirect_qr_code(short_code: str, request: Request, db: Annotated[Session, D
     mapping_url = db.execute(stmt).scalar_one_or_none()
     if not mapping_url:
         raise HTTPException(status_code=404, detail="短網址不存在")
+
     visitor_id = request.cookies.get(f"ss_visitor_id_qr_{short_code}")
     if visitor_id:
         return RedirectResponse(url=mapping_url.target_url)
     visitor_id = str(uuid.uuid4())
+
     ip = get_client_ip(request)
     print(ip)
     # referer = get_client_referer(request)

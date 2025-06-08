@@ -107,4 +107,5 @@ class SideBarController {
   }
 }
 
-export default SideBarController;
+// export default SideBarController;
+new SideBarController();

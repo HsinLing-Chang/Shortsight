@@ -81,6 +81,7 @@
 .short-link a,
 .link-data a {
   text-decoration: none;
+  line-break: anywhere;
   color: black;
   &:hover {
     text-decoration: underline;

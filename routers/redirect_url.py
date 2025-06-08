@@ -29,6 +29,7 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
         ip = get_client_ip(request)
         print(ip)
         referer = get_client_referer(request)
+        print(referer)
         geolocation_info = lookup_ip(ip)
         save_geo_to_db(db, geolocation_info)
         device_result = get_client_device(request)

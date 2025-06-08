@@ -87,3 +87,9 @@
 .short-key {
   color: blue;
 }
+
+/* Bar Chart */
+#click-Chart {
+  width: 1200px;
+  height: 400px;
+}
