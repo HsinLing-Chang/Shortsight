@@ -89,7 +89,17 @@
 }
 
 /* Bar Chart */
+.chart-container > div {
+  margin-bottom: 2.5rem;
+}
 #click-Chart {
   width: 1200px;
-  height: 400px;
+  background-color: #f6fafd;
+  border-radius: 10px;
+  /* padding: 1.5rem; */
+}
+#location {
+  /* background-color: #f6fafd; */
+  border-radius: 10px;
+  /* padding: 1.5rem; */
 }

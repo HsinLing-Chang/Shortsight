@@ -107,7 +107,8 @@ class EventLog(Base):
         Enum("scan", "click", name="event_type"), nullable=False, index=True)
     # Raw
     referer: Mapped[str | None] = mapped_column(Text, nullable=True)
-    ip_address: Mapped[str] = mapped_column(VARCHAR(50), nullable=True)
+    ip_address: Mapped[str] = mapped_column(
+        VARCHAR(50), nullable=True, index=True)
     # device
     device_type: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
     device_browser: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
