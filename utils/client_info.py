@@ -17,13 +17,13 @@ def get_client_referer(request: Request):
     print(f"referer: {referer}")
     if referer is None:
         return "Direct"
-    elif "google.com" in referer:
+    elif "google" in referer:
         return "Google"
-    elif "linkedin.com" in referer:
+    elif "linkedin" in referer:
         return "Linkedin"
-    elif "instagram.com" in referer:
+    elif "instagram" in referer:
         return "Instagram"
-    elif "facebook.com" in referer:
+    elif "facebook" in referer:
         return "Facebook"
     elif "t.co" in referer:
         return "X"
@@ -56,6 +56,8 @@ def get_client_device(request: Request):
         app_source = "Facebook"
     elif "instagram" in ua:
         app_source = "Instagram"
+    elif "linkedin" in ua:
+        app_source = "Linkedin"
     elif "line" in ua:
         app_source = "LINE"
     elif "micromessenger" in ua:
@@ -75,5 +77,5 @@ def get_client_device(request: Request):
 
 def is_custom_bot(ua: str):
     custom_bot_keywords = ["python-requests", "curl", "wget",
-                           "axios", "go-http-client", "postmanruntime", "java", "facebookexternalhit", "Twitterbot", "Applebot", "LinkedInBot"]
+                           "axios", "go-http-client", "postmanruntime", "java", "facebookexternalhit", "twitterbot", "applebot", "linkedinbot"]
     return any(keyword in ua for keyword in custom_bot_keywords)

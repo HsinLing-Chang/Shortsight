@@ -89,17 +89,45 @@
 }
 
 /* Bar Chart */
+.chart-container {
+  margin: 0 auto;
+  max-width: 1200px;
+}
 .chart-container > div {
   margin-bottom: 2.5rem;
 }
+/* .click-everyday {
+  max-width: 1200px;
+} */
 #click-Chart {
-  width: 1200px;
+  max-width: 1200px;
   background-color: #f6fafd;
   border-radius: 10px;
+  width: 100%;
   /* padding: 1.5rem; */
 }
 #location {
   /* background-color: #f6fafd; */
   border-radius: 10px;
+  max-width: 1200px;
+  width: 100%;
   /* padding: 1.5rem; */
+}
+
+.pie-chart {
+  display: flex;
+  gap: 2rem;
+}
+.referer {
+  flex: 1;
+  /* margin: 0 auto; */
+  /* background-color: rgb(183, 175, 175); */
+  height: 400px;
+  padding-left: 5rem;
+}
+.device {
+  flex: 1;
+  /* background-color: red; */
+  padding-left: 5rem;
+  height: 400px;
 }
