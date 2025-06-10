@@ -1,6 +1,6 @@
 from utils.statistics import fill_missing_dates, get_percent
 from database.model import UrlMapping, EventLog, IpLocation, QRCode
-from sqlalchemy import select,  func, desc
+from sqlalchemy import select,  func, desc, case
 from fastapi import HTTPException
 
 
@@ -59,9 +59,14 @@ async def get_scan_location(db, id, user_id, one_month_ago, limit=5,):
 
 
 async def get_device_browser(db, id, user_id,  one_month_ago):
+    browser_group = case(
+        (EventLog.device_browser.ilike('%chrome%'), 'Chrome'),
+        (EventLog.device_browser.ilike('%safari%'), 'Safari'),
+        else_=EventLog.device_browser
+    ).label('browser_group')
     try:
         stmt = (
-            select(EventLog.device_browser,
+            select(browser_group,
                    func.count().label("scans")
                    )
             .join(QRCode, QRCode.mappping_url == EventLog.mapping_id)
@@ -74,7 +79,7 @@ async def get_device_browser(db, id, user_id,  one_month_ago):
                 EventLog.device_type != "Bot",
                 EventLog.app_source != "Bot",
             )
-            .group_by(EventLog.device_browser)
+            .group_by(browser_group)
         )
         result = db.execute(stmt).all()
         data = dict(result)
