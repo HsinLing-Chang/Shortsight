@@ -7,17 +7,8 @@ class CreateChart {
     this.getData();
   }
   async getData() {
-    const path = location.pathname.split("/");
-    let router;
-    if (path[1] == "links") {
-      const uuid = path[2];
-      router = `/api/click/report/${uuid}`;
-    } else {
-      const id = path[2];
-      router = `/api/scan/report/${id}`;
-    }
-
-    const response = await fetch(router, {
+    const uuid = location.pathname.split("/")[2];
+    const response = await fetch(`/api/click/report/${uuid}`, {
       credentials: "include",
     });
     const result = await response.json();
