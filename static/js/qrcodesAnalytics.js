@@ -42,7 +42,7 @@ class QrcodesAnalytics {
       const shortKey = `https://s.ppluchuli.com/s/${qrocdeInfo.data.short_key}`;
       this.shortUrl.textContent = shortKey;
       this.shortUrl.href = shortKey;
-      this.shortUrl.target = "_blank";
+      // this.shortUrl.target = "_blank";
       this.viewShortLink.addEventListener("click", () => {
         this.getShortLink(qrocdeInfo.data.uuid);
       });

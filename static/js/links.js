@@ -75,7 +75,7 @@ async function getLinks() {
       const titleHref = createElement("a", "link-title", linkData.title);
       titleHref.href = `/links/${linkData.uuid}`;
       shortKey.href = shortLink;
-      shortKey.target = "_blank";
+      // shortKey.target = "_blank";
       destination.href = linkData.target_url;
       destination.target = "_blank";
       title.appendChild(titleHref);

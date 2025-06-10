@@ -41,7 +41,11 @@ class QrcodeCard {
 
   cardGenerator() {
     this.qrocdeInfo.forEach((data) => {
-      const card = this.createElement("div", ["qrcode-card", "mg-b2"]);
+      const card = this.createElement("div", [
+        "qrcode-card",
+        "mg-b2",
+        "card-shadow",
+      ]);
 
       // 圖片區塊
       const imgContainer = this.createElement("div", [
@@ -61,6 +65,9 @@ class QrcodeCard {
       // top-info
       const topInfo = this.createElement("div", "top-info");
       const title = this.createElement("h2", "mg-b05", data.title);
+      title.addEventListener("click", () => {
+        this.getQrcodeDetail(data.qr_code.id);
+      });
       const type = this.createElement("p", "mg-b05", "website");
       topInfo.append(title, type);
 

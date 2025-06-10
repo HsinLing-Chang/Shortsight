@@ -40,6 +40,9 @@
 .mg-b2 {
   margin-bottom: 2rem;
 }
+.mg-b3 {
+  margin-bottom: 3rem;
+}
 .flex-1 {
   flex: 1;
 }
@@ -111,9 +114,18 @@
 }
 .copy-btn {
   display: flex;
-  border-color: skyblue;
+  gap: 3px;
+
+  background-color: #eff6ff;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px; /* 圓角 */
+  font-weight: 500;
+  font-size: 14px;
+  color: #1d4ed8;
   &:hover {
     cursor: pointer;
+    background-color: #dbeafe;
   }
 }
 .back-btn {
