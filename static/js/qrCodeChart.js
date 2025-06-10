@@ -13,7 +13,7 @@ class CreateChart {
     });
     const result = await response.json();
     if (result.ok && result.data.total > 0) {
-      // console.log(result.data);
+      // console.log(result.cached);
       this.drawClickEvents(result.data.scanEvents, result.data.total);
       this.drawLocation(result.data.location);
       this.drawReferrerPie(result.data.deviceBrowser);

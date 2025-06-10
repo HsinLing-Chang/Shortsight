@@ -13,6 +13,7 @@ class CreateChart {
     });
     const result = await response.json();
     if (result.ok && result.data.total > 0) {
+      // console.log(result);
       // console.log(result.data);
       this.drawClickEvents(result.data.clickEvents, result.data.total);
       this.drawLocation(result.data.location);
