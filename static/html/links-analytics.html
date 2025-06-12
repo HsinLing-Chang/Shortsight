@@ -18,7 +18,8 @@
       }
     </style>
 
-    <script src="/static/js/tokenValidate.js"></script>
+    <script src="/static/js/tokenValidate.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <title>Shrotsight</title>
   </head>
   <body>
@@ -65,7 +66,7 @@
                 </div>
                 <div class="line"></div>
                 <div class="analytics-container">
-                  <div class="link-card">
+                  <div class="link-card card-shadow">
                     <div class="link-info">
                       <div class="url-info">
                         <h3 class="title padding-bt font-la"></h3>
@@ -96,8 +97,24 @@
                       ><span></span>
                     </p>
                   </div>
-                  <div>QRCODE</div>
-                  <div>Analytics</div>
+                  <!-- <div>QRCODE</div> -->
+
+                  <div class="chart-container">
+                    <div class="click-everyday card-shadow">
+                      <canvas id="click-Chart" height="400px"></canvas>
+                    </div>
+                    <div class="location card-shadow">
+                      <canvas id="location" height="400px"></canvas>
+                    </div>
+                    <div class="pie-chart">
+                      <div class="pie-chart1 card-shadow">
+                        <canvas id="pie-chart1"></canvas>
+                      </div>
+                      <div class="pie-chart2 card-shadow">
+                        <canvas id="pie-chart2"></canvas>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -106,6 +123,9 @@
       </main>
     </div>
 
-    <script defer type="module" src="/static/js/main.js"></script>
+    <!-- <script defer type="module" src="/static/js/main.js"></script> -->
+    <script defer src="/static/js/navbar.js"></script>
+    <script defer src="/static/js/linksAnalytics.js"></script>
+    <script defer src="/static/js/linkChart.js"></script>
   </body>
 </html>

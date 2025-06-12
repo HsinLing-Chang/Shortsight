@@ -91,4 +91,4 @@ class CreateLink {
   }
 }
 
-export default CreateLink;
+new CreateLink();

@@ -82,4 +82,4 @@ class CreateQrcodeForm {
     }
   }
 }
-export default CreateQrcodeForm;
+new CreateQrcodeForm();

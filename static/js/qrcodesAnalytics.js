@@ -27,7 +27,7 @@ class QrcodesAnalytics {
       credentials: "include",
     });
     const qrocdeInfo = await response.json();
-    console.log(qrocdeInfo);
+    // console.log(qrocdeInfo);
     if (qrocdeInfo.ok) {
       this.title.textContent = qrocdeInfo.data.title;
       this.destination.textContent = qrocdeInfo.data.target_url;
@@ -42,7 +42,7 @@ class QrcodesAnalytics {
       const shortKey = `https://s.ppluchuli.com/s/${qrocdeInfo.data.short_key}`;
       this.shortUrl.textContent = shortKey;
       this.shortUrl.href = shortKey;
-      this.shortUrl.target = "_blank";
+      // this.shortUrl.target = "_blank";
       this.viewShortLink.addEventListener("click", () => {
         this.getShortLink(qrocdeInfo.data.uuid);
       });
@@ -103,4 +103,4 @@ class QrcodesAnalytics {
   }
 }
 
-export default QrcodesAnalytics;
+new QrcodesAnalytics();

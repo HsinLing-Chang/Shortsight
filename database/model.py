@@ -98,7 +98,8 @@ class EventLog(Base):
         INTEGER, primary_key=True, autoincrement=True)
     mapping_id: Mapped[int] = mapped_column(
         INTEGER, ForeignKey("url_mapping.id", ondelete="CASCADE"), nullable=False, index=True)
-    visitor_id: Mapped[str | None] = mapped_column(CHAR(36), nullable=True)
+    visitor_id: Mapped[str | None] = mapped_column(
+        CHAR(36), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.current_timestamp(), nullable=False, index=True)
 
@@ -106,11 +107,25 @@ class EventLog(Base):
         Enum("scan", "click", name="event_type"), nullable=False, index=True)
     # Raw
     referer: Mapped[str | None] = mapped_column(Text, nullable=True)
-    ip_address: Mapped[str] = mapped_column(VARCHAR(50), nullable=True)
+    ip_address: Mapped[str] = mapped_column(
+        VARCHAR(50), nullable=True, index=True)
+    # device
     device_type: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    device_browser: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    device_os: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
+    app_source: Mapped[str] = mapped_column(VARCHAR(20), nullable=True)
     # relationships
     mapping: Mapped["UrlMapping"] = relationship(
         "UrlMapping", back_populates="events")
+
+
+class IpLocation(Base):
+    __tablename__ = "ip_location"
+    ip_address: Mapped[str] = mapped_column(VARCHAR(50), primary_key=True)
+    country: Mapped[str] = mapped_column(VARCHAR(100), nullable=True)
+    city: Mapped[str] = mapped_column(VARCHAR(100), nullable=True)
+    latitude: Mapped[float] = mapped_column(nullable=True)
+    longitude: Mapped[float] = mapped_column(nullable=True)
 
 
 Base.metadata.create_all(engine)

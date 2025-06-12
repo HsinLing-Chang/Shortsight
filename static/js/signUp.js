@@ -53,4 +53,5 @@ class SignUp {
     }
   }
 }
-export default SignUp;
+// export default SignUp;
+new SignUp();

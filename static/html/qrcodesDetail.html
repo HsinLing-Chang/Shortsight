@@ -20,6 +20,7 @@
     </style>
 
     <script src="/static/js/tokenValidate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <title>Shrotsight</title>
   </head>
   <body>
@@ -67,7 +68,7 @@
                 </div>
                 <div class="line"></div>
                 <div class="qrcode-analytics-container">
-                  <div class="qrcode-analytics-card card-shadow">
+                  <div class="qrcode-analytics-card card-shadow mg-b3">
                     <div class="card-content">
                       <div class="top-content">
                         <h1 class="mg-b1 qr-title"></h1>
@@ -118,10 +119,23 @@
                       </div>
                     </div>
                     <div class="qr-img-container mg-l1">
-                      <img
-                        class="qr-img"
-                        src="https://dcymcz24d7wyx.cloudfront.net/qrcodes/ymVX2.PNG"
-                      />
+                      <img class="qr-img" />
+                    </div>
+                  </div>
+                  <div class="chart-container">
+                    <div class="click-everyday card-shadow">
+                      <canvas id="click-Chart" height="400px"></canvas>
+                    </div>
+                    <div class="location card-shadow">
+                      <canvas id="location" height="400px"></canvas>
+                    </div>
+                    <div class="pie-chart">
+                      <div class="pie-chart1 card-shadow">
+                        <canvas id="pie-chart1"></canvas>
+                      </div>
+                      <div class="pie-chart2 card-shadow">
+                        <canvas id="pie-chart2"></canvas>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -132,6 +146,8 @@
       </main>
     </div>
 
-    <script defer type="module" src="/static/js/main.js"></script>
+    <script defer src="/static/js/navbar.js"></script>
+    <script defer src="/static/js/qrcodesAnalytics.js"></script>
+    <script defer src="/static/js/qrCodeChart.js"></script>
   </body>
 </html>

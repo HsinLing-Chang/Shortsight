@@ -38,6 +38,7 @@ class SideBarController {
     this.path = window.location.pathname.split("/")[1];
 
     if (this.signOutBtn) {
+      if (this.signOutBtn.textContent == "Sign In") return;
       this.signOutBtn.addEventListener("click", async () => this._signOut());
     }
     this.targetPage();
@@ -106,4 +107,5 @@ class SideBarController {
   }
 }
 
-export default SideBarController;
+// export default SideBarController;
+new SideBarController();

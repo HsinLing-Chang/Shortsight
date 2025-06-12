@@ -13,3 +13,6 @@ aioredis
 redis
 qrcode[pil]
 hashids
+geoip2
+user-agents
+# device-detector
