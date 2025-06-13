@@ -34,11 +34,17 @@ async def redirect_qr_code(short_code: str, request: Request, db: Annotated[Sess
     print(geolocation_info)
 
     new_Event = EventLog(mapping_id=mapping_url.id,
-                         visitor_id=visitor_id, event_type="scan", ip_address=ip, device_type=device_result.get("device_type"), device_browser=device_result.get("device_browser"), device_os=device_result.get("device_os"), app_source=device_result.get("app_source"))
+                         visitor_id=visitor_id,
+                         event_type="scan",
+                         ip_address=ip,
+                         device_type=device_result.get("device_type"),
+                         device_browser=device_result.get("device_browser"),
+                         device_os=device_result.get("device_os"),
+                         app_source=device_result.get("app_source"))
     db.add(new_Event)
     db.commit()
 
     response = RedirectResponse(url=mapping_url.target_url)
     response.set_cookie(f"ss_visitor_id_qr_{short_code}", visitor_id,
-                        httponly=True, secure=False, max_age=60 * 60 * 24,)
+                        httponly=True, secure=False, max_age=30,)
     return response

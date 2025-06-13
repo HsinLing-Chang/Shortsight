@@ -8,7 +8,7 @@ class CreateChart {
   }
   async getData() {
     const uuid = location.pathname.split("/")[2];
-    const response = await fetch(`/api/click/report/${uuid}`, {
+    const response = await fetch(`/api/report/click/${uuid}`, {
       credentials: "include",
     });
     const result = await response.json();
@@ -199,14 +199,14 @@ class CreateChart {
         {
           data: data,
           backgroundColor: [
-            "#3B82F6",
-            "#F87171",
-            "#FBBF24",
-            "#34D399",
             "#A78BFA",
             "#60A5FA",
             "#F472B6",
             "#FCD34D",
+            "#3B82F6",
+            "#F87171",
+            "#FBBF24",
+            "#34D399",
           ],
           borderWidth: 0,
         },

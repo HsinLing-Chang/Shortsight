@@ -4,7 +4,7 @@ from utils.dependencies import get_db
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from database.model import UrlMapping, EventLog
+from database.model import UrlMapping, EventLog, EventTrafficSource
 import uuid
 from utils.client_info import get_client_ip, get_client_referer, get_client_device
 from Geolocation.geolocation import lookup_ip
@@ -28,20 +28,36 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
 
         ip = get_client_ip(request)
         print(ip)
-        referer = get_client_referer(request)
-        print(referer)
+        traffic_info, referer = get_client_referer(request)
+        print(f"referrer info: {traffic_info}, referrer: {referer}")
         geolocation_info = lookup_ip(ip)
         save_geo_to_db(db, geolocation_info)
         device_result = get_client_device(request)
         print(geolocation_info)
-        new_Event = EventLog(mapping_id=mapping_url.id,
-                             visitor_id=visitor_id, event_type="click", referer=referer, ip_address=ip, device_type=device_result.get("device_type"), device_browser=device_result.get("device_browser"), device_os=device_result.get("device_os"), app_source=device_result.get("app_source"))
+        new_Event = EventLog(
+            mapping_id=mapping_url.id,
+            visitor_id=visitor_id,
+            event_type="click",
+            referer=referer,
+            ip_address=ip,
+            device_type=device_result.get("device_type"),
+            device_browser=device_result.get("device_browser"),
+            device_os=device_result.get("device_os"),
+            app_source=device_result.get("app_source"),
+
+            source_info=EventTrafficSource(
+                referrer_domain=traffic_info["domain"],
+                source=traffic_info["source"],
+                medium=traffic_info["medium"],
+                channel=traffic_info["channel"],
+            )
+        )
         db.add(new_Event)
         db.commit()
 
         response = RedirectResponse(url=mapping_url.target_url)
         response.set_cookie(f"ss_visitor_id_s_{mapping_url.uuid}", visitor_id,
-                            httponly=True, secure=False, max_age=60 * 60 * 24,)
+                            httponly=True, secure=False, max_age=30,)
         return response
     except HTTPException as e:
         raise e
@@ -52,3 +68,18 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"未知錯誤：{e}")
         raise HTTPException(status_code=500, detail="伺服器內部錯誤")
+
+
+# @router.get("/l/{links}")
+# def redirect_url_loc(request: Request, links: str, db: Session = Depends(get_db)):
+
+#     info, referer = get_client_referer(request)
+#     print(f"referrer info: {info}, referrer: {referer}")
+#     stmt = select(UrlMapping).where(
+#         or_(UrlMapping.short_key == links, UrlMapping.uuid == links))
+#     mapping_url = db.execute(stmt).scalar_one_or_none()
+
+#     new_traffic_sourec = EventTrafficSource()
+
+#     response = RedirectResponse(url=mapping_url.target_url)
+#     return response

@@ -1,6 +1,19 @@
 from fastapi import Request
 from user_agents import parse
+from urllib.parse import urlparse, parse_qs
 # from device_detector import DeviceDetector
+
+GA_SOURCE_CATEGORIES = {
+    "google.com":      ("google", "organic", "Search Engine"),
+    "bing.com":        ("bing", "organic", "Search Engine"),
+    "yahoo.com":       ("yahoo", "organic", "Search Engine"),
+    "facebook.com":    ("facebook", "referral", "Social Site"),
+    "instagram.com":   ("instagram", "referral", "Social Site"),
+    "linkedin.com":    ("linkedin", "referral", "Social Site"),
+    "youtube.com":     ("youtube", "referral", "Video Site"),
+    "vimeo.com":       ("vimeo", "referral", "Video Site"),
+    "ppluchuli.com":   ("shortsight", "referral", "Referral"),
+}
 
 
 def get_client_ip(request: Request) -> str:
@@ -14,23 +27,33 @@ def get_client_ip(request: Request) -> str:
 
 def get_client_referer(request: Request):
     referer = request.headers.get("referer")
-    print(f"referer: {referer}")
-    if referer is None:
-        return "Direct"
-    elif "google" in referer:
-        return "Google"
-    elif "linkedin" in referer:
-        return "Linkedin"
-    elif "instagram" in referer:
-        return "Instagram"
-    elif "facebook" in referer:
-        return "Facebook"
-    elif "t.co" in referer:
-        return "X"
-    elif "ppluchuli.com" in referer:
-        return "Shortsight"
-    else:
-        return "Other"
+    if not referer:
+        return {
+            "domain": None,
+            "source": "(direct)",
+            "medium": "none",
+            "channel": "Direct"
+        }, referer
+    parsed = urlparse(referer)
+    domain = parsed.netloc.lower()
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    for known_domain, (source, medium, channel) in GA_SOURCE_CATEGORIES.items():
+        if known_domain in domain:
+            return {
+                "domain": domain,
+                "source": source,
+                "medium": medium,
+                "channel": channel
+            }, referer
+
+    return {
+        "domain": domain,
+        "source": domain,
+        "medium": "referral",
+        "channel": "Referral"
+    }, referer
 
 
 def get_client_device(request: Request):

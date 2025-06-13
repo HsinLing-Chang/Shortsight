@@ -75,7 +75,7 @@ async def index(request: Request, id: int):
 
 @app.get("/analytics", include_in_schema=False)
 async def index(request: Request):
-    return FileResponse("./static/html/analytics.html", media_type="text/html")
+    return FileResponse("./static/html/analyticsAlllinks.html", media_type="text/html")
 
 
 @app.get("/campaign", include_in_schema=False)

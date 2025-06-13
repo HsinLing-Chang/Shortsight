@@ -1,18 +1,21 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Query
 from fastapi.responses import JSONResponse
 from utils.security import JWTtoken
 from utils.dependencies import get_db
 from sqlalchemy.orm import Session
 from repositories.link_statistics import get_click_location, get_cliek_event, get_device, get_referrer
 from repositories.qrcode_statistics import get_scan_event, get_scan_location, get_device_browser, get_device_os
-from typing import Annotated
-from datetime import datetime, timedelta, timezone
+from repositories.analytics_statistics import get_link_performance, get_all_interaction_counts, get_clicks_and_scans_ratio
+from typing import Annotated, Optional
+from datetime import datetime, timedelta, timezone, date, time
 from database.catch import redis_handler
 import json
+from database.model import UrlMapping, EventLog, IpLocation, QRCode, UTMParams
+from sqlalchemy import select, func, case
 router = APIRouter(prefix="/api", tags=["report"])
 
 
-@router.get("/click/report/{uuid}")
+@router.get("/report/click/{uuid}")
 async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
     cache_key = f"click_report:{current_user.id}:{uuid}"
@@ -32,15 +35,14 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
             "referrer": referrer,
             "device": device
         }
-        await redis.set(cache_key, json.dumps(data), ex=60)
-        # print(click_events)
+        await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/scan/report/{id}")
+@router.get("/report/scan/{id}")
 async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
     cache_key = f"click_report:{current_user.id}:{id}"
@@ -62,8 +64,96 @@ async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current
             "deviceBrowser": device_browser,
             "deviceOS": device_os
         }
-        await redis.set(cache_key, json.dumps(data), ex=60)
+        await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/report/performance")
+def get_all_log(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    all_links_data = get_link_performance(db, current_user.id)
+    return JSONResponse(content={"ok": True, "data": all_links_data})
+
+
+@router.get("/report/trend")
+def get_top_trand(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user),  start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
+    data = get_all_interaction_counts(
+        db, current_user.id, start_date, end_date)
+    return JSONResponse(content={"ok": True, "data": data})
+
+
+@router.get("/report/interaction-ratio")
+def get_all_interaction_ratio(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    data = get_clicks_and_scans_ratio(db, current_user.id)
+    return JSONResponse(content={"ok": True, "data": data})
+
+
+@router.get("/report/referrers")
+def get_all_referrers(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    stmt = (
+        select(
+            EventLog.referer,
+            func.count(EventLog.id).label("clicks")
+        )
+        .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
+        .where(UrlMapping.user_id == current_user.id,
+               EventLog.device_type != "Bot",
+               EventLog.app_source != "Bot",
+               EventLog.referer.isnot(None))
+        .group_by(EventLog.referer)
+    )
+    results = db.execute(stmt).mappings().all()
+    data = [dict(row) for row in results]
+    return JSONResponse(content={"ok": True, "data": data})
+
+
+@router.get("/report/devices")
+def get_all_devices(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    stmt = (
+        select(
+            EventLog.device_type,
+            func.count(EventLog.id).label("counts"),
+        )
+        .join(UrlMapping, EventLog.mapping_id == UrlMapping.id)
+        .where(UrlMapping.user_id == current_user.id,
+               EventLog.event_type == "scan",
+               EventLog.device_type != "Bot",
+               EventLog.app_source != "Bot",
+               )
+        .group_by(EventLog.device_type)
+    )
+    results = db.execute(stmt).mappings().all()
+    data = [dict(row) for row in results]
+    return JSONResponse(content={"ok": True, "data": data})
+
+
+@router.get("/report/geolocation")
+def get_geolocation_data(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    stmt = (
+        select(
+            IpLocation.country,
+            IpLocation.city,
+            IpLocation.latitude,
+            IpLocation.longitude,
+            func.count(EventLog.id).label("interactions")
+        ).select_from(EventLog)
+        .join(UrlMapping, EventLog.mapping_id == UrlMapping.id)
+        .join(IpLocation, EventLog.ip_address == IpLocation.ip_address)
+        .where(
+            UrlMapping.user_id == current_user.id,
+            EventLog.device_type != "Bot",
+            EventLog.app_source != "Bot"
+        )
+        .group_by(
+            IpLocation.country,
+            IpLocation.city,
+            IpLocation.latitude,
+            IpLocation.longitude,
+        )
+    )
+    results = db.execute(stmt).mappings().all()
+    data = [dict(row) for row in results]
+
+    return JSONResponse(content={"ok": True, "data": data})

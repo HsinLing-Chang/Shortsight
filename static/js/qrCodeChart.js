@@ -8,7 +8,7 @@ class CreateChart {
   }
   async getData() {
     const id = location.pathname.split("/")[2];
-    const response = await fetch(`/api/scan/report/${id}`, {
+    const response = await fetch(`/api/report/scan/${id}`, {
       credentials: "include",
     });
     const result = await response.json();
