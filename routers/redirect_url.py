@@ -25,14 +25,16 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
         if visitor_id:
             return RedirectResponse(url=mapping_url.target_url)
         visitor_id = str(uuid.uuid4())
-
+        device_result = get_client_device(request)
+        if device_result.get("device_type") == "Bot" or device_result.get("app_source") == "Bot":
+            return {"ok": True, "message": "Bot traffic ignored"}
         ip = get_client_ip(request)
         print(ip)
         traffic_info, referer = get_client_referer(request)
         print(f"referrer info: {traffic_info}, referrer: {referer}")
         geolocation_info = lookup_ip(ip)
         save_geo_to_db(db, geolocation_info)
-        device_result = get_client_device(request)
+
         print(geolocation_info)
         new_Event = EventLog(
             mapping_id=mapping_url.id,
