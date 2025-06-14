@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from utils.security import JWTtoken
 from utils.dependencies import get_db
 from sqlalchemy.orm import Session
-from repositories.link_statistics import get_click_location, get_cliek_event, get_device, get_referrer
+from repositories.link_statistics import get_click_location, get_cliek_event, get_device, get_referrer, get_referral
 from repositories.qrcode_statistics import get_scan_event, get_scan_location, get_device_browser, get_device_os
 from repositories.analytics_statistics import get_link_performance, get_all_interaction_counts, get_clicks_and_scans_ratio
 from typing import Annotated, Optional
@@ -18,11 +18,13 @@ router = APIRouter(prefix="/api", tags=["report"])
 @router.get("/report/click/{uuid}")
 async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
-    cache_key = f"click_report:{current_user.id}:{uuid}"
-    redis = await redis_handler.get_redis_client()
-    cached = await redis.get(cache_key)
-    if cached:
-        return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
+    # cache_key = f"click_report:{current_user.id}:{uuid}"
+    # redis = await redis_handler.get_redis_client()
+    # cached = await redis.get(cache_key)
+    referrer_result = get_referral(db, uuid, current_user.id, one_month_ago)
+    print(referrer_result)
+    # if cached:
+    #     return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
     try:
         click_events, total = await get_cliek_event(db, uuid,  current_user.id, one_month_ago)
         location = await get_click_location(db, uuid, current_user.id, one_month_ago)
@@ -33,9 +35,10 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
             "clickEvents": click_events,
             "location": location,
             "referrer": referrer,
-            "device": device
+            "device": device,
+            "referrer_result": referrer_result
         }
-        await redis.set(cache_key, json.dumps(data), ex=30)
+        # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)

@@ -129,6 +129,10 @@ class LinksAnalytics {
       this.titleElem.textContent = "載入失敗";
     }
   }
+
+  createReferreralTable() {
+    pass;
+  }
 }
 
 const analytic = new LinksAnalytics();

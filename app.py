@@ -78,6 +78,16 @@ async def index(request: Request):
     return FileResponse("./static/html/analyticsAllLinks.html", media_type="text/html")
 
 
+@app.get("/analytics/trend", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/trending.html", media_type="text/html")
+
+
+@app.get("/analytics/geoplot", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/geoPlot.html", media_type="text/html")
+
+
 @app.get("/campaign", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./static/html/campaign.html", media_type="text/html")

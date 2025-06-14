@@ -12,6 +12,9 @@
 .analytics-nav :not(:first-child) {
   border-left: 1px solid #d3d3d3;
 }
+a {
+  text-decoration: none;
+}
 .analytics-nav div {
   padding: 0.5rem 1rem;
   color: #1f2937;

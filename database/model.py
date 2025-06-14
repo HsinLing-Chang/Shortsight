@@ -123,8 +123,10 @@ class EventLog(Base):
 
 class EventTrafficSource(Base):
     __tablename__ = "event_traffic_source"
+    id: Mapped[int] = mapped_column(
+        INTEGER, primary_key=True, autoincrement=True)
     event_id: Mapped[int] = mapped_column(
-        ForeignKey("event_log.id", ondelete="CASCADE"), primary_key=True)
+        ForeignKey("event_log.id", ondelete="CASCADE"), index=True)
     referrer_domain: Mapped[str | None] = mapped_column(
         VARCHAR(100), nullable=True, comment="從 referrer 拆解出來的 domain")
     source: Mapped[str | None] = mapped_column(

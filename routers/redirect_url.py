@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from utils.dependencies import get_db
 from sqlalchemy import select, or_
@@ -19,18 +19,32 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
             or_(UrlMapping.short_key == links, UrlMapping.uuid == links))
         mapping_url = db.execute(stmt).scalar_one_or_none()
         if not mapping_url:
-            raise HTTPException(status_code=404, detail="短網址不存在")
+            raise HTTPException(
+                status_code=404, detail="short key doesn't exist")
 
         visitor_id = request.cookies.get(f"ss_visitor_id_s_{mapping_url.uuid}")
-        if visitor_id:
+        recent_click = request.cookies.get("ss_recent_click")
+
+        response = RedirectResponse(url=mapping_url.target_url)
+
+        if recent_click:
             return RedirectResponse(url=mapping_url.target_url)
-        visitor_id = str(uuid.uuid4())
+        else:
+            response.set_cookie("ss_recent_click", "1", max_age=300)
+
+        if not visitor_id:
+            visitor_id = str(uuid.uuid4())
+            response.set_cookie(f"ss_visitor_id_s_{mapping_url.uuid}", visitor_id,
+                                httponly=True, secure=False, max_age=60*60*24*365,)
+
         device_result = get_client_device(request)
         if device_result.get("device_type") == "Bot" or device_result.get("app_source") == "Bot":
-            return {"ok": True, "message": "Bot traffic ignored"}
+            return RedirectResponse(url=mapping_url.target_url)
+        traffic_info, referer = get_client_referer(request)
+        print(traffic_info)
         ip = get_client_ip(request)
         print(ip)
-        traffic_info, referer = get_client_referer(request)
+
         print(f"referrer info: {traffic_info}, referrer: {referer}")
         geolocation_info = lookup_ip(ip)
         save_geo_to_db(db, geolocation_info)
@@ -57,9 +71,6 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
         db.add(new_Event)
         db.commit()
 
-        response = RedirectResponse(url=mapping_url.target_url)
-        response.set_cookie(f"ss_visitor_id_s_{mapping_url.uuid}", visitor_id,
-                            httponly=True, secure=False, max_age=30,)
         return response
     except HTTPException as e:
         raise e

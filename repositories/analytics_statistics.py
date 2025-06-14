@@ -110,15 +110,15 @@ def get_all_interaction_counts(db, user_id, start_date, end_date):
         .order_by("day")
     )
     results = db.execute(stmt).mappings().all()
-    data = {row["day"].isoformat(): {"clicks": row["clicks"], "scans": row["scans"],
-                                     "total": row["total_interaction"]}for row in results}
+    data = {row["day"].strftime("%m-%d"): {"clicks": row["clicks"], "scans": row["scans"],
+                                           "total": row["total_interaction"]}for row in results}
     max_day, max_count, trend = all_interaction_fill_missing_dates(
         start_date, end_date, data)
     top_info = get_top_info(db, max_day, user_id)
     return {
         "trend": trend,
         "summary": {
-            "max_day": max_day.isoformat() if max_day else None,
+            "max_day": max_day.strftime("%m-%d") if max_day else None,
             "max_count": max_count,
         },
         "top_info": top_info
@@ -132,7 +132,7 @@ def all_interaction_fill_missing_dates(start_day: date, end_day: date, data):
     total_days = (end_day - start_day).days + 1
     for i in range(total_days):
         day = start_day + timedelta(days=i)
-        day_str = day.isoformat()
+        day_str = day.strftime("%m-%d")
         data_count = data.get(day_str, {"clicks": 0, "scans": 0, "total": 0})
 
         if data_count.get("total") > max_count:

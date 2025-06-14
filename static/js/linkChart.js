@@ -4,7 +4,128 @@ class CreateChart {
     this.ctx_location = document.querySelector("#location").getContext("2d");
     this.ctx_referrer = document.querySelector("#pie-chart1");
     this.ctx_device = document.querySelector("#pie-chart2");
+    this.chartContainer = document.querySelector(".chart-container");
     this.getData();
+  }
+  renderReferrerBlock(data) {
+    const fullChannels = [
+      "Search Engine",
+      "Social Site",
+      "Video Site",
+      "Direct",
+      "Referral",
+    ];
+    const referrer = this.createElement("div", "referrer");
+    const dataMap = {};
+    data.forEach((ch) => {
+      dataMap[ch.channel] = ch;
+    });
+    for (const channelName of fullChannels) {
+      const channelData = dataMap[channelName] || {
+        channel: channelName,
+        total: 0,
+        sources: [],
+      };
+
+      const channelBox = this.createElement("div", "channel");
+
+      // Channel 標題
+      const channelTitle = this.createElement("div", "channel-title");
+      channelTitle.appendChild(
+        this.createElement("h3", null, channelData.channel)
+      );
+      channelTitle.appendChild(
+        this.createElement("h3", null, `(${channelData.total})`)
+      );
+      channelBox.appendChild(channelTitle);
+
+      // Source container（即使 total == 0 也要有結構，可能顯示空或提示文字）
+      const sourceContainer = this.createElement("div", "source-container");
+
+      if (channelData.total > 0) {
+        // 標題列
+        const headerRow = this.createElement("div", ["source-title", "source"]);
+        headerRow.appendChild(this.createElement("div", null, "source"));
+        headerRow.appendChild(this.createElement("div", null, "domain"));
+        headerRow.appendChild(this.createElement("div", null, "count"));
+        sourceContainer.appendChild(headerRow);
+
+        // 資料列
+        channelData.sources.forEach((source) => {
+          const row = this.createElement("div", "source");
+          row.appendChild(this.createElement("div", null, source.source));
+          row.appendChild(this.createElement("div", null, source.domain));
+          row.appendChild(this.createElement("div", null, source.count));
+          sourceContainer.appendChild(row);
+        });
+      } else {
+        const emptyRow = this.createElement("div", "no-data");
+        emptyRow.textContent = "No data available";
+        sourceContainer.appendChild(emptyRow);
+      }
+
+      // 組裝結構
+      channelBox.appendChild(sourceContainer);
+      referrer.appendChild(channelBox);
+
+      // 加上點擊收合功能
+      channelTitle.addEventListener("click", () => {
+        sourceContainer.classList.toggle("drop-down-referrer");
+      });
+    }
+    // for (const channel of data) {
+    //   const channelBox = this.createElement("div", "channel");
+
+    //   // Channel 標題
+    //   const channelTitle = this.createElement("div", "channel-title");
+
+    //   channelTitle.appendChild(this.createElement("h3", null, channel.channel));
+    //   channelTitle.appendChild(
+    //     this.createElement("h3", null, `(${channel.total})`)
+    //   );
+    //   channelBox.appendChild(channelTitle);
+    //   if (channel.total == 0) {
+    //     continue;
+    //   }
+    //   // Source container
+    //   const sourceContainer = this.createElement("div", "source-container");
+
+    //   // 標題列（欄位名）
+    //   const headerRow = this.createElement("div", ["source-title", "source"]);
+    //   headerRow.appendChild(this.createElement("div", null, "source"));
+    //   headerRow.appendChild(this.createElement("div", null, "domain"));
+    //   headerRow.appendChild(this.createElement("div", null, "count"));
+    //   sourceContainer.appendChild(headerRow);
+
+    //   // 每個資料列
+    //   channel.sources.forEach((source) => {
+    //     const row = this.createElement("div", "source");
+    //     row.appendChild(this.createElement("div", null, source.source));
+    //     row.appendChild(this.createElement("div", null, source.domain));
+    //     row.appendChild(this.createElement("div", null, source.count));
+    //     sourceContainer.appendChild(row);
+    //   });
+
+    //   // 組裝整體結構
+    //   channelBox.appendChild(sourceContainer);
+    //   referrer.appendChild(channelBox);
+    //   channelTitle.addEventListener("click", () => {
+    //     sourceContainer.classList.toggle("drop-down-referrer");
+    //   });
+    // }
+    this.chartContainer.appendChild(referrer);
+  }
+  createElement(tag, className = [], textContent = "") {
+    const element = document.createElement(tag);
+    if (typeof className == "string" && className) {
+      element.classList.add(className);
+    } else if (Array.isArray(className)) {
+      element.classList.add(...className);
+    }
+    if (textContent !== null && textContent !== undefined) {
+      element.textContent = textContent;
+    }
+    return element;
   }
   async getData() {
     const uuid = location.pathname.split("/")[2];
@@ -14,7 +135,8 @@ class CreateChart {
     const result = await response.json();
     if (result.ok && result.data.total > 0) {
       // console.log(result);
-      // console.log(result.data);
+      console.log(result.data);
+      this.renderReferrerBlock(result.data.referrer_result);
       this.drawClickEvents(result.data.clickEvents, result.data.total);
       this.drawLocation(result.data.location);
       this.drawReferrerPie(result.data.referrer);

@@ -11,8 +11,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/index.css" />
-
+    <link rel="stylesheet" href="/static/style/trending.css" />
     <style>
       body {
         visibility: hidden;
@@ -20,6 +19,7 @@
     </style>
 
     <script src="/static/js/tokenValidate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <title>Shrotsight</title>
   </head>
   <body>
@@ -62,8 +62,48 @@
             <div class="page">
               <div class="page-real">
                 <!-- 頁面插入位置 -->
-                <h1>HOME</h1>
-                <a href="/s/eqJym">測試</a>
+                <div class="header">
+                  <h1>Analytics</h1>
+                </div>
+                <div class="line"></div>
+                <div class="report-container">
+                  <div class="analytics-nav mg-b1">
+                    <a href="/analytics"><div>Total Links</div></a>
+                    <div class="active-nav">Trend</div>
+                    <a href="/analytics/geoplot"><div>By location</div></a>
+                  </div>
+                  <div class="trend-container">
+                    <div class="chart-info">
+                      <div class="summary">
+                        <span>🔝 Highest Activity:</span
+                        ><span class="highest-day"> 06-05 (9 total)</span>
+                      </div>
+                      <div class="top-link">
+                        <strong>🏆 Top Link:</strong>
+                        <span class="short-key"> test7</span><br />
+                        <span>Clicks:</span><span class="clicks"> 1</span><br />
+                        <strong>Scans:</strong><span class="scans"> 8</span>
+                      </div>
+                    </div>
+                    <div class="trend-controls">
+                      <label>
+                        Start:
+                        <input type="date" id="start-date" />
+                      </label>
+                      <label>
+                        End:
+                        <input type="date" id="end-date" />
+                      </label>
+                      <button id="apply-range">Apply</button>
+                    </div>
+                    <div class="canvas-container">
+                      <canvas id="trendChart" height="500"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- <h2 style="text-align: center">Clicks + Scans by Location</h2>
+                <div id="geoMap" style="width: 100%; height: 600px"></div> -->
               </div>
             </div>
           </div>
@@ -72,5 +112,6 @@
     </div>
 
     <script defer src="/static/js/navbar.js"></script>
+    <script defer src="/static/js/trending.js"></script>
   </body>
 </html>
