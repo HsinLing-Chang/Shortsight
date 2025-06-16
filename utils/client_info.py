@@ -4,14 +4,15 @@ from urllib.parse import urlparse, parse_qs
 # from device_detector import DeviceDetector
 
 GA_SOURCE_CATEGORIES = {
-    "google.com":      ("google", "organic", "Search Engine"),
-    "bing.com":        ("bing", "organic", "Search Engine"),
-    "yahoo.com":       ("yahoo", "organic", "Search Engine"),
-    "facebook.com":    ("facebook", "referral", "Social Site"),
-    "instagram.com":   ("instagram", "referral", "Social Site"),
-    "linkedin.com":    ("linkedin", "referral", "Social Site"),
-    "youtube.com":     ("youtube", "referral", "Video Site"),
-    "vimeo.com":       ("vimeo", "referral", "Video Site"),
+    "google.com":      ("google", "organic", "Organic Search"),
+    "bing.com":        ("bing", "organic", "Organic Search"),
+    "baidu.com":       ("baidu", "organic", "Organic Search"),
+    "yahoo.com":       ("yahoo", "organic", "Organic Search"),
+    "facebook.com":    ("facebook", "referral", "Organic Social"),
+    "instagram.com":   ("instagram", "referral", "Organic Social"),
+    "linkedin.com":    ("linkedin", "referral", "Organic Social"),
+    "youtube.com":     ("youtube", "referral", "Organic Video"),
+    "vimeo.com":       ("vimeo", "referral", "Organic Video"),
     "ppluchuli.com":   ("shortsight", "referral", "Referral"),
 }
 
@@ -25,19 +26,37 @@ def get_client_ip(request: Request) -> str:
     return request.client.host
 
 
-def get_client_referer(request: Request):
+def get_client_referer(request: Request, utm_source, utm_medium, utm_campaign):
     referer = request.headers.get("referer")
-    if not referer:
+    domain = None
+
+    if referer:
+        parsed = urlparse(referer)
+        domain = parsed.netloc.lower()
+        if domain.startswith("www."):
+            domain = domain[4:]
+
+    parsed_source = utm_source or None
+    parsed_medium = utm_medium or None
+    parsed_campaign = utm_campaign or None
+
+    if utm_source or utm_medium:
+        return {
+            "domain": domain,
+            "source": parsed_source or "(direct)",
+            "medium": parsed_medium or "(none)",
+            "channel": "Paid" if parsed_medium in ["cpc", "banner"] else "Referral",
+            "campaign": parsed_campaign
+        }, referer
+
+    if not referer:  # 沒有referrer就歸類在direct
         return {
             "domain": None,
             "source": "(direct)",
-            "medium": "none",
-            "channel": "Direct"
-        }, referer
-    parsed = urlparse(referer)
-    domain = parsed.netloc.lower()
-    if domain.startswith("www."):
-        domain = domain[4:]
+            "medium": "(none)",
+            "channel": "Direct",
+            "campaign": None
+        }, None
 
     for known_domain, (source, medium, channel) in GA_SOURCE_CATEGORIES.items():
         if known_domain in domain:
@@ -45,14 +64,16 @@ def get_client_referer(request: Request):
                 "domain": domain,
                 "source": source,
                 "medium": medium,
-                "channel": channel
+                "channel": channel,
+                "campaign": None
             }, referer
-
+    # 有referrer但找不到
     return {
         "domain": domain,
         "source": domain,
         "medium": "referral",
-        "channel": "Referral"
+        "channel": "Referral",
+        "campaign": None
     }, referer
 
 

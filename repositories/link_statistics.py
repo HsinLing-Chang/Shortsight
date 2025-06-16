@@ -116,54 +116,98 @@ async def get_device(db, uuid, user_id, one_month_ago):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-def get_referral(db, uuid, user_id, one_month_ago):
+# def get_referral(db, uuid, user_id, one_month_ago):
 
-    stmt = (select(
-        EventTrafficSource.channel,
-        EventTrafficSource.medium,
-        EventTrafficSource.source,
-        EventTrafficSource.referrer_domain,
-        func.count().label("count"))
-        .select_from(EventTrafficSource)
-        .join(EventLog, EventLog.id == EventTrafficSource.event_id)
-        .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
-        .where(UrlMapping.user_id == user_id,
-               UrlMapping.uuid == uuid,
-               EventLog.created_at >= one_month_ago,
-               )
-        .group_by(
-            EventTrafficSource.channel,
-            EventTrafficSource.medium,
-            EventTrafficSource.source,
-            EventTrafficSource.referrer_domain,
-    ))
+#     stmt = (select(
+#         EventTrafficSource.channel,
+#         EventTrafficSource.medium,
+#         EventTrafficSource.source,
+#         EventTrafficSource.domain,
+#         func.count().label("count"))
+#         .select_from(EventTrafficSource)
+#         .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
+#         .where(UrlMapping.user_id == user_id,
+#                UrlMapping.uuid == uuid,
+#                EventLog.created_at >= one_month_ago,
+#                )
+#         .group_by(
+#             EventTrafficSource.channel,
+#             EventTrafficSource.medium,
+#             EventTrafficSource.source,
+#             EventTrafficSource.domain,
+#     ))
 
-    results = db.execute(stmt).mappings().all()
-    # print(f"result: {results}")
-    return build_referral(results)
+#     results = db.execute(stmt).mappings().all()
+#     # print(f"result: {results}")
+#     return build_referral(results)
 
 
-def build_referral(results):
-    channel_map = defaultdict(list)
-    channel_totals = defaultdict(int)
+# def build_referral(results):
+#     channel_map = defaultdict(list)
+#     channel_totals = defaultdict(int)
 
-    for row in results:
-        item = {
-            "source": row["source"],
-            "domain": row["referrer_domain"],
-            "medium": row["medium"],
-            "count": row["count"]
-        }
+#     for row in results:
+#         item = {
+#             "source": row["source"],
+#             "domain": row["referrer_domain"],
+#             "medium": row["medium"],
+#             "count": row["count"]
+#         }
 
-        channel_map[row["channel"]].append(item)
-        channel_totals[row["channel"]] += row["count"]
+#         channel_map[row["channel"]].append(item)
+#         channel_totals[row["channel"]] += row["count"]
 
-    final_data = []
-    for channel, sources in channel_map.items():
-        final_data.append({
-            "channel": channel,
-            "total": channel_totals[channel],
-            "sources": sources
+#     final_data = []
+#     for channel, sources in channel_map.items():
+#         final_data.append({
+#             "channel": channel,
+#             "total": channel_totals[channel],
+#             "sources": sources
+#         })
+#     print(final_data)
+#     return final_data
+
+def summary_referrer(rows):
+    CHANNELS = ["Direct", "Organic Search",
+                "Organic Social", "Organic Video", "Referral", "Paid"]
+
+    # 初始結果容器
+    channel_map = {
+        ch: {"channel": ch, "total_clicks": 0, "sources": []}
+        for ch in CHANNELS
+    }
+    source_lookup = {ch: {} for ch in CHANNELS}
+
+    # 將查詢結果整理進 channel → source → domain 結構
+    for row in rows:
+        channel = row.channel or "Direct"
+        source = row.source or "(direct)"
+        domain = row.domain or "(none)"
+        clicks = row.clicks
+
+        if channel not in channel_map:
+            # 新的 channel 動態補上（如果超出預設）
+            channel_map[channel] = {"channel": channel,
+                                    "total_clicks": 0, "sources": []}
+            source_lookup[channel] = {}
+
+        if source not in source_lookup[channel]:
+            source_obj = {
+                "source": source,
+                "total_clicks": 0,
+                "domains": []
+            }
+            channel_map[channel]["sources"].append(source_obj)
+            source_lookup[channel][source] = source_obj
+
+        channel_map[channel]["total_clicks"] += clicks
+        source_lookup[channel][source]["total_clicks"] += clicks
+        source_lookup[channel][source]["domains"].append({
+            "domain": domain,
+            "clicks": clicks
         })
-    print(final_data)
-    return final_data
+
+    # 最終結果
+    return {
+        "channels": list(channel_map.values())
+    }

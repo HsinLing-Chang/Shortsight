@@ -136,7 +136,7 @@ class CreateChart {
     if (result.ok && result.data.total > 0) {
       // console.log(result);
       console.log(result.data);
-      this.renderReferrerBlock(result.data.referrer_result);
+      // this.renderReferrerBlock(result.data.referrer_result);
       this.drawClickEvents(result.data.clickEvents, result.data.total);
       this.drawLocation(result.data.location);
       this.drawReferrerPie(result.data.referrer);

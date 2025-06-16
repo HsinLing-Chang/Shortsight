@@ -16,6 +16,7 @@ class Trending {
         }
         const startDate = new Date(start);
         const endDate = new Date(end);
+        console.log(endDate);
         const diffDays =
           Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1; // 加 1 表示包含當天
 
@@ -35,7 +36,7 @@ class Trending {
     //   start_date: startDate,
     //   end_date: endDate,
     // });
-    console.log(startDate);
+    // console.log(startDate);
     let url;
     if (!startDate) {
       url = "/api/report/trend";

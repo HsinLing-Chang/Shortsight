@@ -11,7 +11,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/campaign.css" />
+    <link rel="stylesheet" href="/static/style/source-medium.css" />
     <style>
       body {
         visibility: hidden;
@@ -69,12 +69,20 @@
                 <div class="line"></div>
                 <div class="report-container">
                   <div class="campaign-nav mg-b1">
-                    <div class="active-nav">All campaigns</div>
-                    <a href="/campaign/source"><div>Source/Medium</div></a>
+                    <a href="/campaign"><div>All campaigns</div></a>
+                    <div class="active-nav">Source/Medium</div>
                   </div>
-                  <div class="campaign-container">
-                    <div class="campaign-header">
-                      <div class="select-section">
+                  <div class="source-container">
+                    <div class="source-header">
+                      <div class="camapign-select-section">
+                        <label for="camapign-select"
+                          >Campaign:
+                          <select name="camapign-select" id="camapign-select">
+                            <option value="all">All</option>
+                          </select>
+                        </label>
+                      </div>
+                      <div class="event-select-section mg-l3">
                         <label for="event-type"
                           >Event:
                           <select name="event-type" id="event-type">
@@ -84,7 +92,6 @@
                           </select>
                         </label>
                       </div>
-
                       <div class="date-controls">
                         <label class="mg-l3">
                           Start:
@@ -97,9 +104,9 @@
                         <button id="apply-range" class="mg-l1">Apply</button>
                       </div>
                     </div>
-                    <div class="campaign-content mg-t2">
+                    <div class="source-content mg-t2">
                       <div class="grid-header">
-                        <div>Campaign</div>
+                        <div>Source/Medium</div>
                         <div>All users</div>
                         <div>New users</div>
                         <div>New user ratio</div>
@@ -109,9 +116,11 @@
                         <div></div>
                         <div class="summary-all-users">14</div>
                         <div class="summary-new-users">4</div>
-                        <div class="summary-ratio">%</div>
+                        <div class="summary-ratio">50%</div>
                         <div>
-                          <span class="summary-level" id="summary-level"></span>
+                          <span class="summary-level" id="summary-level"
+                            >Very high</span
+                          >
                         </div>
                       </div>
                       <div class="append"></div>
@@ -129,6 +138,6 @@
     </div>
 
     <script defer src="/static/js/navbar.js"></script>
-    <script defer src="/static/js/campaign.js"></script>
+    <script defer src="/static/js/sourceMedium.js"></script>
   </body>
 </html>

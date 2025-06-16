@@ -3,14 +3,14 @@ from fastapi.responses import JSONResponse
 from utils.security import JWTtoken
 from utils.dependencies import get_db
 from sqlalchemy.orm import Session
-from repositories.link_statistics import get_click_location, get_cliek_event, get_device, get_referrer, get_referral
+from repositories.link_statistics import get_click_location, get_cliek_event, get_device, get_referrer, summary_referrer
 from repositories.qrcode_statistics import get_scan_event, get_scan_location, get_device_browser, get_device_os
 from repositories.analytics_statistics import get_link_performance, get_all_interaction_counts, get_clicks_and_scans_ratio
 from typing import Annotated, Optional
 from datetime import datetime, timedelta, timezone, date, time
 from database.catch import redis_handler
 import json
-from database.model import UrlMapping, EventLog, IpLocation, QRCode, UTMParams
+from database.model import UrlMapping, EventLog, IpLocation, QRCode, UTMParams, EventTrafficSource
 from sqlalchemy import select, func, case
 router = APIRouter(prefix="/api", tags=["report"])
 
@@ -21,8 +21,8 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
     # cache_key = f"click_report:{current_user.id}:{uuid}"
     # redis = await redis_handler.get_redis_client()
     # cached = await redis.get(cache_key)
-    referrer_result = get_referral(db, uuid, current_user.id, one_month_ago)
-    print(referrer_result)
+    # referrer_result = get_referral(db, uuid, current_user.id, one_month_ago)
+    # print(referrer_result)
     # if cached:
     #     return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
     try:
@@ -36,13 +36,45 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
             "location": location,
             "referrer": referrer,
             "device": device,
-            "referrer_result": referrer_result
+            # "referrer_result": referrer_result
         }
         # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/report/click/referrer/{uuid}")
+async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    stmt = select(UrlMapping.id).where(
+        (UrlMapping.short_key == uuid) | (UrlMapping.uuid ==
+                                          uuid), UrlMapping.user_id == current_user.id
+    )
+    result = db.execute(stmt)
+    mapping_id = result.scalar_one_or_none()
+    if not mapping_id:
+        raise HTTPException(status_code=404, detail="URL not found")
+
+    # 抓出該網址所有 click 的來源資料
+    stmt = (
+        select(EventTrafficSource.channel,
+               EventTrafficSource.source,
+               EventTrafficSource.domain,
+               func.count().label("clicks"))
+        .where(
+            EventTrafficSource.event_type == "click",
+            EventTrafficSource.mapping_id == mapping_id
+        ).group_by(
+            EventTrafficSource.channel,
+            EventTrafficSource.source,
+            EventTrafficSource.domain
+        )
+    )
+    result = db.execute(stmt).mappings().all()
+    summary = summary_referrer(result)
+    print(summary)
+    return JSONResponse(content={"ok": True, "data": summary})
 
 
 @router.get("/report/scan/{id}")
@@ -75,26 +107,26 @@ async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current
 
 
 @router.get("/report/performance")
-def get_all_log(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+async def get_all_log(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     all_links_data = get_link_performance(db, current_user.id)
     return JSONResponse(content={"ok": True, "data": all_links_data})
 
 
 @router.get("/report/trend")
-def get_top_trand(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user),  start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
+async def get_top_trand(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user),  start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
     data = get_all_interaction_counts(
         db, current_user.id, start_date, end_date)
     return JSONResponse(content={"ok": True, "data": data})
 
 
 @router.get("/report/interaction-ratio")
-def get_all_interaction_ratio(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+async def get_all_interaction_ratio(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     data = get_clicks_and_scans_ratio(db, current_user.id)
     return JSONResponse(content={"ok": True, "data": data})
 
 
 @router.get("/report/referrers")
-def get_all_referrers(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+async def get_all_referrers(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     stmt = (
         select(
             EventLog.referer,
@@ -113,7 +145,7 @@ def get_all_referrers(db: Annotated[Session, Depends(get_db)], current_user=Depe
 
 
 @router.get("/report/devices")
-def get_all_devices(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+async def get_all_devices(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     stmt = (
         select(
             EventLog.device_type,
@@ -133,7 +165,7 @@ def get_all_devices(db: Annotated[Session, Depends(get_db)], current_user=Depend
 
 
 @router.get("/report/geolocation")
-def get_geolocation_data(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+async def get_geolocation_data(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     stmt = (
         select(
             IpLocation.country,

@@ -52,8 +52,8 @@ class CreateQrcodeForm {
         utm_source: this.sourceInput.value.trim() || null,
         utm_medium: this.mediumInput.value.trim() || null,
         utm_campaign: this.campaignInput.value.trim() || null,
-        utm_term: this.contentInput.value.trim() || null,
-        utm_content: this.termInput.value.trim() || null,
+        // utm_term: this.contentInput.value.trim() || null,
+        // utm_content: this.termInput.value.trim() || null,
       },
     };
   }
