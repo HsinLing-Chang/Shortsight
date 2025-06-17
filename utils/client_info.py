@@ -13,7 +13,7 @@ GA_SOURCE_CATEGORIES = {
     "linkedin.com":    ("linkedin", "referral", "Organic Social"),
     "youtube.com":     ("youtube", "referral", "Organic Video"),
     "vimeo.com":       ("vimeo", "referral", "Organic Video"),
-    "ppluchuli.com":   ("shortsight", "referral", "Referral"),
+    "s.ppluchuli.com":   ("shortsight", "referral", "Referral"),
 }
 
 

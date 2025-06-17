@@ -48,11 +48,33 @@ a {
   gap: 2rem;
 }
 .chart-info {
-  width: 60%;
-  margin: 0 auto;
-  background: #f8f9fc;
+  /* width: 60%; */
+  /* margin: 0 auto; */
+  margin: 0 1.5rem;
+  padding: 2rem;
+
+  align-self: flex-start;
 }
 .canvas-container {
   height: 500px;
   width: 1000px;
+}
+.top-link-info {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  flex-wrap: wrap;
+  /* justify-content: space-around; */
+  /* align-self: flex-start; */
+}
+.top-link {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+.a-link {
+  color: #4a145b;
+  &:hover {
+    color: #0284c7;
+  }
 }

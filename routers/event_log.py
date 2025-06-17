@@ -28,13 +28,13 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
     try:
         click_events, total = await get_cliek_event(db, uuid,  current_user.id, one_month_ago)
         location = await get_click_location(db, uuid, current_user.id, one_month_ago)
-        referrer = await get_referrer(db, uuid, current_user.id, one_month_ago)
+        # referrer = await get_referrer(db, uuid, current_user.id, one_month_ago)
         device = await get_device(db, uuid, current_user.id, one_month_ago)
         data = {
             "total": total,
             "clickEvents": click_events,
             "location": location,
-            "referrer": referrer,
+            # "referrer": referrer,
             "device": device,
             # "referrer_result": referrer_result
         }

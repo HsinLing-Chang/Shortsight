@@ -205,3 +205,35 @@
 .drop-down-referrer {
   display: block;
 }
+
+/* referrer */
+#dropdown-container {
+  font-family: sans-serif;
+  line-height: 1.6;
+}
+
+.toggle {
+  cursor: pointer;
+  margin: 4px 0;
+}
+
+.level-1 {
+  font-weight: bold;
+}
+
+.level-2 {
+  margin-left: 16px;
+}
+
+.level-3 {
+  margin-left: 32px;
+  color: #555;
+}
+
+.nested {
+  display: none;
+}
+
+.toggle.open + .nested {
+  display: block;
+}

@@ -22,7 +22,7 @@ async def create_short_url(url_form: URLForm, db: Annotated[Session, Depends(get
         #     raise HTTPException(
         #         status_code=status.HTTP_400_BAD_REQUEST, detail=f"{url_form.short_key} 是系統保留字，請換一個短碼。")
         uuid = await uuid_generator.generate_uuid()
-
+        print(url_form.title)
         new_utm_params = url_form.utm_params.to_model() if url_form.utm_params else None
 
         mapping = UrlMapping(user_id=current_user.id, title=url_form.title, uuid=uuid,

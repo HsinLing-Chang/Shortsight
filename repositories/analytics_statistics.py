@@ -169,7 +169,7 @@ def get_top_info(db, max_day, user_id):
         )
         .group_by(UrlMapping, UTMParams.utm_campaign)
         .order_by(func.count(EventLog.id).desc())
-        .limit(3)
+        # .limit(3)
 
     )
     results = db.execute(stmt).mappings().all()

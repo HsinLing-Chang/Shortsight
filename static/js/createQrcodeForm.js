@@ -45,7 +45,8 @@ class CreateQrcodeForm {
   }
   getPayload() {
     return {
-      title: this.title.value.trim(),
+      title:
+        this.title.value.trim() === "" ? "Untitled" : this.title.value.trim(),
       target_url: this.destination.value.trim(),
       short_key: this.shortKey.value.trim() || null,
       utm_params: {

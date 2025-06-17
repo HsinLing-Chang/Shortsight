@@ -49,13 +49,68 @@ class Trending {
     const data = await response.json();
     console.log(data.data);
     this.trendChart(data.data);
-    this.topLink(data.data.summary, data.data.top_info[0]);
+    this.topLink(data.data.summary, data.data.top_info);
   }
+
   topLink(summary, topInfo) {
-    this.shortKey.textContent = topInfo.shortKey || topInfo.uuid;
-    this.clicks.textContent = topInfo.clicks;
-    this.scans.textContent = topInfo.scans;
-    this.highestDay.textContent = `${summary.max_day} (${summary.max_count} total)`;
+    const container = document.querySelector(".top-link-info"); // 你要放入的容器
+    container.innerHTML = "";
+    topInfo.forEach((info) => {
+      const topLink = this.createElement("div", ["top-link", "card-shadow"]);
+
+      // 🔹 第一層：Top Link + a 標籤
+      const linkDiv = this.createElement("div", ["mg-b05"]);
+      const strongLabel = this.createElement("strong", [], "Link:");
+      const anchor = this.createElement("a", ["a-link"]);
+      anchor.href = `/links/${info.uuid}`;
+      const spanShortKey = this.createElement(
+        "span",
+        "short-key",
+        ` ${info.shortKey}`
+      );
+      anchor.appendChild(spanShortKey);
+      linkDiv.appendChild(strongLabel);
+      linkDiv.appendChild(anchor);
+
+      // 🔹 第二層：Clicks
+      const clickDiv = this.createElement("div", ["mg-b05"]);
+      const clickLabel = this.createElement("strong", [], "Clicks:");
+      const clickValue = this.createElement(
+        "span",
+        "clicks",
+        ` ${info.clicks}`
+      );
+      clickDiv.appendChild(clickLabel);
+      clickDiv.appendChild(clickValue);
+
+      // 🔹 第三層：Scans
+      const scanDiv = this.createElement("div");
+      const scanLabel = this.createElement("strong", [], "Scans:");
+      const scanValue = this.createElement("span", "scans", ` ${info.scans}`);
+      scanDiv.appendChild(scanLabel);
+      scanDiv.appendChild(scanValue);
+
+      // 加入三個區塊
+      topLink.appendChild(linkDiv);
+      topLink.appendChild(clickDiv);
+      topLink.appendChild(scanDiv);
+
+      container.appendChild(topLink);
+    });
+
+    this.highestDay.textContent = `Highest Activity: ${summary.max_day} (${summary.max_count} total)`;
+  }
+  createElement(tag, className = [], textContent = "") {
+    const element = document.createElement(tag);
+    if (typeof className == "string" && className) {
+      element.classList.add(className);
+    } else if (Array.isArray(className)) {
+      element.classList.add(...className);
+    }
+    if (textContent !== null && textContent !== undefined) {
+      element.textContent = textContent;
+    }
+    return element;
   }
   trendChart(data) {
     const trend = data.trend;
