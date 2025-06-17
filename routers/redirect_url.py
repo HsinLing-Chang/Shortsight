@@ -11,6 +11,9 @@ from Geolocation.geolocation import lookup_ip
 from repositories.ip import save_geo_to_db
 router = APIRouter(prefix="/s")
 
+weird_ip = ["128.203.96.252", "173.252.87.18",
+            "66.220.149.112", "173.252.127.23", "31.13.115.3", "66.249.83.103", "27.100.64.229", "27.100.64.229"]
+
 
 @router.get("/{links}")
 def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
@@ -50,6 +53,8 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
             request,  utm_source, utm_medium, utm_campaign)
         print(traffic_info)
         ip = get_client_ip(request)
+        if ip in weird_ip:
+            return RedirectResponse(url=target_url)
         print(ip)
 
         print(f"referrer info: {traffic_info}, referrer: {referer}")

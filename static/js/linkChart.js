@@ -5,6 +5,7 @@ class CreateChart {
     this.ctx_referrer = document.querySelector("#pie-chart1");
     this.ctx_device = document.querySelector("#pie-chart2");
     this.chartContainer = document.querySelector(".chart-container");
+    this.newReferrerContainer = document.querySelector("#referrer-container");
     // this.referrerContainer = document.querySelector(".analytics-container");
     this.getData();
     this.getReferrer();
@@ -58,8 +59,9 @@ class CreateChart {
     if (result.ok) {
       const channels = result.data.channels;
       console.log(channels);
-      this.createReferrerData(channels);
+      // this.createReferrerData(channels);
       this.drawReferrerPie(channels);
+      this.createNewReferrerData(this.newReferrerContainer, channels);
     }
     console.log(result);
   }
@@ -234,10 +236,10 @@ class CreateChart {
             "#60A5FA",
             "#F472B6",
             "#FCD34D",
-            "#3B82F6",
+
             "#F87171",
             "#FBBF24",
-            "#34D399",
+            "#41ba7c",
           ],
           borderWidth: 0,
         },
@@ -399,6 +401,62 @@ class CreateChart {
             next.style.display === "block" ? "none" : "block";
         }
       }
+    });
+  }
+  createNewReferrerData(container, channels) {
+    channels.forEach((channelObj) => {
+      // Channel 標題加上總點擊數
+      const title = `${channelObj.channel} (${channelObj.total_clicks})`;
+
+      // 建立 channel 容器
+      const channelContainer = this.createElement("div", "channel-container");
+      channelContainer.style.marginBottom = "12px";
+
+      // 建立 channel 標題（可點擊）
+      const channelName = this.createElement("div", ["channel-name"], title);
+
+      // 建立表格區（預設隱藏）
+      const gridContainer = this.createElement("div", "grid-container");
+      gridContainer.style.display = "none"; // 預設收合
+
+      // 資料列
+      if (channelObj.sources && channelObj.sources.length > 0) {
+        // 表頭
+        const headers = ["Channel", "Source", "Medium", "Domain", "Click"];
+        headers.forEach((title) =>
+          gridContainer.appendChild(this.createElement("div", "g-title", title))
+        );
+        channelObj.sources.forEach((src) => {
+          src.domains.forEach((domainObj) => {
+            gridContainer.appendChild(
+              this.createElement("div", [], channelObj.channel)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], src.source)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], src.medium)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], domainObj.domain)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], domainObj.clicks)
+            );
+          });
+        });
+      }
+
+      // 點擊切換展開/收合
+      channelName.addEventListener("click", () => {
+        gridContainer.style.display =
+          gridContainer.style.display === "none" ? "grid" : "none";
+      });
+
+      // 組合進 DOM
+      channelContainer.appendChild(channelName);
+      channelContainer.appendChild(gridContainer);
+      container.appendChild(channelContainer);
     });
   }
 }

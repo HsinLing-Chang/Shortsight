@@ -29,6 +29,7 @@ class QrcodesAnalytics {
     const qrocdeInfo = await response.json();
     // console.log(qrocdeInfo);
     if (qrocdeInfo.ok) {
+      console.log(qrocdeInfo);
       this.title.textContent = qrocdeInfo.data.title;
       this.destination.textContent = qrocdeInfo.data.target_url;
       this.destination.href = qrocdeInfo.data.target_url;
@@ -39,7 +40,9 @@ class QrcodesAnalytics {
       // this.download.download = `qrcodes.PNG`;
       // this.download.click();
       this.createdAt.textContent = qrocdeInfo.data.qr_code.created_at;
-      const shortKey = `https://s.ppluchuli.com/s/${qrocdeInfo.data.short_key}`;
+      const shortKey = `https://s.ppluchuli.com/s/${
+        qrocdeInfo.data.shortKey || qrocdeInfo.data.uuid
+      }`;
       this.shortUrl.textContent = shortKey;
       this.shortUrl.href = shortKey;
       // this.shortUrl.target = "_blank";

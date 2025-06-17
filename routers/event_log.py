@@ -60,6 +60,7 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
     stmt = (
         select(EventTrafficSource.channel,
                EventTrafficSource.source,
+               EventTrafficSource.medium,
                EventTrafficSource.domain,
                func.count().label("clicks"))
         .where(
@@ -68,6 +69,7 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
         ).group_by(
             EventTrafficSource.channel,
             EventTrafficSource.source,
+            EventTrafficSource.medium,
             EventTrafficSource.domain
         )
     )
@@ -192,3 +194,15 @@ async def get_geolocation_data(db: Annotated[Session, Depends(get_db)], current_
     data = [dict(row) for row in results]
 
     return JSONResponse(content={"ok": True, "data": data})
+
+
+# @router.get("/report/GA")
+# async def get_GA_data(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+#     # Channel
+#     CHANNELS = ["Direct", "Organic Search",
+#                 "Organic Social", "Organic Video", "Referral"]
+#     stmt = (
+#         select(
+#             EventTrafficSource.
+#         )
+#     )

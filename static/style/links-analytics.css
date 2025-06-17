@@ -210,6 +210,7 @@
 #dropdown-container {
   font-family: sans-serif;
   line-height: 1.6;
+  background-color: #fff;
 }
 
 .toggle {
@@ -236,4 +237,39 @@
 
 .toggle.open + .nested {
   display: block;
+}
+
+/* new referrer */
+.channel-container {
+  background: #fff;
+  border: 1px solid #d3dee7;
+}
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  border-radius: 0 0 8px 8px;
+}
+
+.channel-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #203a57;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.g-title {
+  background: #6ca4b6;
+  color: #fff;
+  border-bottom: 1px solid #d3dee7;
+}
+.grid-container > div {
+  padding: 0.5rem 1rem;
+}
+.grid-container > div:not(.g-title) {
+  background: #f5f8fa;
+  color: #253d53;
+}
+.grid-container > div:not(.g-title):hover {
+  background: #bfe0ef;
 }

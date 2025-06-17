@@ -1,5 +1,6 @@
 class Index {
   constructor() {
+    this.userInfo = document.querySelector(".user-info");
     this.ctx = document.getElementById("trafficPieChart").getContext("2d");
     this.editBtn = document.querySelector(".edit-btn");
     this.createBtn = document.querySelector(".create-btn");
@@ -89,13 +90,13 @@ class Index {
     const nameSpan = document.querySelector(".user-name");
 
     if (!this.isEditing) {
-      // 切換成編輯模式
       const name = nameSpan.textContent;
 
+      this.userInfo.style.padding = "2rem";
       nameSpan.innerHTML = `<input type="text" id="name-input" value="${name}">`;
-      this.editBtn.textContent = "儲存";
+      this.editBtn.textContent = "Save";
     } else {
-      // 儲存模式
+      this.userInfo.style.padding = "2rem 4rem";
       const newName = document.getElementById("name-input").value;
       const response = await fetch("/api/user", {
         headers: {
@@ -111,7 +112,7 @@ class Index {
       console.log(result);
       nameSpan.textContent = newName;
 
-      this.editBtn.textContent = "編輯";
+      this.editBtn.textContent = "Edit";
     }
 
     this.isEditing = !this.isEditing;

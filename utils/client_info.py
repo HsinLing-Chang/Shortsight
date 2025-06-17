@@ -4,15 +4,18 @@ from urllib.parse import urlparse, parse_qs
 # from device_detector import DeviceDetector
 
 GA_SOURCE_CATEGORIES = {
-    "google.com":      ("google", "organic", "Organic Search"),
-    "bing.com":        ("bing", "organic", "Organic Search"),
-    "baidu.com":       ("baidu", "organic", "Organic Search"),
-    "yahoo.com":       ("yahoo", "organic", "Organic Search"),
-    "facebook.com":    ("facebook", "referral", "Organic Social"),
-    "instagram.com":   ("instagram", "referral", "Organic Social"),
-    "linkedin.com":    ("linkedin", "referral", "Organic Social"),
-    "youtube.com":     ("youtube", "referral", "Organic Video"),
-    "vimeo.com":       ("vimeo", "referral", "Organic Video"),
+    "com.linkedin.android": ("linkedin", "referral", "Organic Social"),
+    "linkedin":    ("linkedin", "referral", "Organic Social"),
+    "com.facebook.katana": ("facebook", "referral", "Organic Social"),
+    "facebook":    ("facebook", "referral", "Organic Social"),
+    "t.co":        ("Twitter", "referral", "Organic Social"),
+    "google":      ("google", "organic", "Organic Search"),
+    "bing":        ("bing", "organic", "Organic Search"),
+    "baidu":       ("baidu", "organic", "Organic Search"),
+    "yahoo":       ("yahoo", "organic", "Organic Search"),
+    "instagram":   ("instagram", "referral", "Organic Social"),
+    "youtube":     ("youtube", "referral", "Organic Video"),
+    "vimeo":       ("vimeo", "referral", "Organic Video"),
     "s.ppluchuli.com":   ("shortsight", "referral", "Referral"),
 }
 
@@ -45,7 +48,7 @@ def get_client_referer(request: Request, utm_source, utm_medium, utm_campaign):
             "domain": domain,
             "source": parsed_source or "(direct)",
             "medium": parsed_medium or "(none)",
-            "channel": "Paid" if parsed_medium in ["cpc", "banner"] else "Referral",
+            "channel": "Referral",
             "campaign": parsed_campaign
         }, referer
 

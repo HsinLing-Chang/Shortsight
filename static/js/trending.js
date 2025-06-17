@@ -66,7 +66,7 @@ class Trending {
       const spanShortKey = this.createElement(
         "span",
         "short-key",
-        ` ${info.shortKey}`
+        ` ${info.shortKey || info.uuid}`
       );
       anchor.appendChild(spanShortKey);
       linkDiv.appendChild(strongLabel);
