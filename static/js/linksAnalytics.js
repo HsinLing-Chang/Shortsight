@@ -1,34 +1,3 @@
-// async function getLinksInfo() {
-//   const path = window.location.pathname;
-//   const uuid = path.split("/")[2];
-//   if (!uuid) return;
-//   const token = localStorage.getItem("access_token");
-//   const response = await fetch(`/api/links/${uuid}`, {
-//     headers: {
-//       credentials: "include",
-//     },
-//   });
-//   const linkData = await response.json();
-//   if (linkData.data) {
-//     const title = document.querySelector(".title");
-//     const shortKey = document.querySelector(".short-key");
-//     const destination = document.querySelector(".destination");
-//     const createDate = document.querySelector(".created-at > span");
-//     title.textContent = linkData.data.title;
-
-//     const shortCode = linkData.data.short_key
-//       ? linkData.data.short_key
-//       : linkData.data.uuid;
-
-//     shortKey.textContent = `https://s.ppluchuli.com/s/${shortCode}`;
-//     destination.textContent = linkData.data.target_url;
-//     destination.href = linkData.data.target_url;
-//     destination.target = "_blank";
-//     createDate.textContent = linkData.data.created_at;
-//   }
-// }
-// getLinksInfo();
-
 class LinksAnalytics {
   constructor() {
     this.title = document.querySelector(".title");
@@ -39,6 +8,7 @@ class LinksAnalytics {
     this.copyText = document.querySelector(".copy-text");
     this._copyTimeoutId = null;
     this.uuid = null;
+    this.qrcodeBtn = document.querySelector(".generate-view");
     this.dropDownBtn = document.querySelector(".drop-down-btn");
     this.dropDown = document.querySelector(".drop-down");
     this.edit = document.querySelector(".edit");
@@ -55,7 +25,30 @@ class LinksAnalytics {
       });
     }
   }
-
+  generateOrView(qrcodeId) {
+    if (!qrcodeId) {
+      this.qrcodeBtn.textContent = "Generate Qrcode";
+      this.qrcodeBtn.addEventListener("click", () => {
+        if (confirm("Are you sure you want to create a new QR code?"))
+          this.generateQrcode();
+      });
+    } else {
+      this.qrcodeBtn.textContent = "View Qr code";
+      this.qrcodeBtn.addEventListener("click", () => {
+        location.href = `/qrcodes/${qrcodeId}`;
+      });
+    }
+  }
+  async generateQrcode() {
+    const response = await fetch(`/api/qrcodes/${this.uuid}`, {
+      credentials: "include",
+      method: "POST",
+    });
+    const result = await response.json();
+    if (result.ok) {
+      location.href = `/qrcodes/${result.qrcodeId}`;
+    }
+  }
   clickDropDown() {
     this.dropDown.classList.toggle("display");
   }
@@ -111,6 +104,7 @@ class LinksAnalytics {
       if (!response.ok) throw new Error("載入失敗");
       const linkData = await response.json();
       if (linkData.data) {
+        console.log(linkData.data);
         this.uuid = linkData.data.uuid;
         this.title.textContent = linkData.data.title;
         const shortCode = linkData.data.short_key
@@ -123,6 +117,7 @@ class LinksAnalytics {
         this.destination.target = "_blank";
         this.createDate.textContent = linkData.data.created_at;
         this._addCopyEvent();
+        this.generateOrView(linkData.data.qrcode_id);
       }
     } catch (e) {
       console.error("取得連結資料失敗", err);

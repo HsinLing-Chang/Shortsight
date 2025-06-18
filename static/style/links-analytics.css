@@ -35,7 +35,10 @@
   gap: 1rem;
   justify-content: end;
 }
-
+.generate-view {
+  width: 120px;
+  text-align: center;
+}
 .select-container {
   /* margin-left: 1rem; */
   position: relative;
@@ -44,6 +47,9 @@
   background-color: #eff6ff;
   padding: 8px 12px;
   border-radius: 6px;
+  height: 40px;
+  width: 40px;
+  text-align: center;
   font-size: 14px;
   border: none;
   &:hover {
@@ -207,7 +213,7 @@
 }
 
 /* referrer */
-#dropdown-container {
+/* #dropdown-container {
   font-family: sans-serif;
   line-height: 1.6;
   background-color: #fff;
@@ -237,7 +243,7 @@
 
 .toggle.open + .nested {
   display: block;
-}
+} */
 
 /* new referrer */
 .channel-container {

@@ -36,6 +36,7 @@ a {
 .source-content {
   background-color: #fff;
   padding: 2rem;
+  border-radius: 10px;
 }
 .source-header {
   display: flex;

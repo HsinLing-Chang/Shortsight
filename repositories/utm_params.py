@@ -15,7 +15,6 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
         .group_by(EventTrafficSource.visitor_id)
     ).subquery()
 
-    # Step 2: 條件
     conditions = [
         EventTrafficSource.visitor_id.isnot(None),
         EventTrafficSource.event_type == event_type,
@@ -27,7 +26,6 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
         conditions.append(EventTrafficSource.created_at <
                           end_date + timedelta(days=1))
 
-    # Step 3: 處理日期條件（避免 None 比較錯誤）
     end_adj = end_date + timedelta(days=1) if end_date else None
     if start_date and end_adj:
         new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
@@ -39,7 +37,6 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
     else:
         new_user_cond = True
 
-    # Step 4: 查詢語句
     stmt = (
         select(
             UTMParams.utm_source.label("source"),
@@ -67,8 +64,9 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
         )
         .where(
             UrlMapping.user_id == user_id,
-            UTMParams.utm_source.isnot(None),  # 可省略，視你是否接受空值分群
-            UTMParams.utm_medium.isnot(None)
+            UTMParams.utm_source.isnot(None),
+            UTMParams.utm_medium.isnot(None),
+            UTMParams.utm_campaign.is_not(None),
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
         .order_by(func.count(EventTrafficSource.id).desc())
@@ -91,7 +89,7 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
             "medium": row["medium"],
             "total_interactions": total,
             "new_users": new,
-            "new_user_ratio": ratio,  # e.g., 33.3
+            "new_user_ratio": ratio,
             "new_user_level": level
         })
     print(final_data)
@@ -119,7 +117,6 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
         .group_by(EventTrafficSource.visitor_id)
     ).subquery()
 
-    # ✅ 時間條件 for join filter
     event_conditions = []
     if event_type:
         event_conditions.append(EventTrafficSource.event_type == event_type)
@@ -128,7 +125,6 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
     if end_date:
         event_conditions.append(EventTrafficSource.created_at < end_date)
 
-    # ✅ 新用戶條件（套用 first_seen_subq）
     if start_date and end_date:
         new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
             first_seen_subq.c.first_seen < end_date)
@@ -139,7 +135,6 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
     else:
         new_user_cond = True
 
-    # ✅ 主查詢：從使用者的 UTMParams 出發
     stmt = (
         select(
             UTMParams.utm_source.label("source"),
@@ -163,7 +158,7 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
         )
         .where(
             UrlMapping.user_id == user_id,
-            UTMParams.utm_campaign == campaign  # ✅ 特定 campaign 條件
+            UTMParams.utm_campaign == campaign
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
         .order_by(func.count(EventTrafficSource.id).desc())
@@ -183,7 +178,7 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
         level = classify_new_user_ratio(ratio, total)
         final_data.append({
             **row,
-            "new_user_ratio": ratio,  # 百分比
+            "new_user_ratio": ratio,
             "new_user_level": level
         })
     print(final_data)
@@ -203,7 +198,7 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
         end_adj = end_date + timedelta(days=1)
     else:
         end_adj = None
-    # ✅ 找出每個 visitor 的首次出現時間
+
     first_seen_subq = (
         select(
             EventTrafficSource.visitor_id,
@@ -213,14 +208,12 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
         .group_by(EventTrafficSource.visitor_id)
     ).subquery()
 
-    # ✅ event 時間範圍條件
     event_filters = [EventTrafficSource.event_type.in_(["click", "scan"])]
     if start_date:
         event_filters.append(EventTrafficSource.created_at >= start_date)
     if end_adj:
         event_filters.append(EventTrafficSource.created_at < end_adj)
 
-    # ✅ new_user 條件
     if start_date and end_adj:
         new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
             first_seen_subq.c.first_seen < end_adj)
@@ -231,7 +224,6 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
     else:
         new_user_cond = True
 
-# ✅ 主查詢從 UTMParams 出發
     stmt = (
         select(
             UTMParams.utm_source.label("source"),
@@ -258,7 +250,8 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
         .where(
             UrlMapping.user_id == user_id,
             UTMParams.utm_source.isnot(None),
-            UTMParams.utm_medium.isnot(None)
+            UTMParams.utm_medium.isnot(None),
+            UTMParams.utm_campaign.is_not(None),
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
         .order_by(func.count(EventTrafficSource.id).desc())
@@ -299,7 +292,6 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
     else:
         end_adj = None
 
-    # 🔹 新用戶基準表
     first_seen_subq = (
         select(
             EventTrafficSource.visitor_id,
@@ -309,14 +301,12 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
         .group_by(EventTrafficSource.visitor_id)
     ).subquery()
 
-    # 🔹 事件條件（只作用於 join 條件）
     event_filters = [EventTrafficSource.event_type.in_(["click", "scan"])]
     if start_date:
         event_filters.append(EventTrafficSource.created_at >= start_date)
     if end_adj:
         event_filters.append(EventTrafficSource.created_at < end_adj)
 
-    # 🔹 新用戶判斷條件
     if start_date and end_adj:
         new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
             first_seen_subq.c.first_seen < end_adj)
@@ -327,7 +317,6 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
     else:
         new_user_cond = True
 
-    # 🔹 主查詢
     stmt = (
         select(
             UTMParams.utm_source.label("source"),
@@ -365,7 +354,7 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
     overall_ratio = round(total_new_users * 100 /
                           total_users, 1) if total_users else 0.0
     total_level = classify_new_user_ratio(overall_ratio, total_users)
-  # 🔹 添加 new_user_ratio 欄位
+
     final_data = []
     for row in result:
         total = row["total_interactions"]
@@ -413,7 +402,6 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
         .subquery()
     )
 
-    # 新用戶條件
     if start_date and end_date:
         new_user_cond = and_(
             first_seen_subq.c.first_seen >= start_date,
@@ -427,7 +415,6 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
     else:
         new_user_cond = True
 
-# 時間條件
     traffic_filters = []
     if start_date:
         traffic_filters.append(EventTrafficSource.created_at >= start_date)
@@ -435,7 +422,6 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
         traffic_filters.append(
             EventTrafficSource.created_at < end_date + timedelta(days=1))
 
-# 主查詢
     stmt = (
         select(
             UTMParams.utm_campaign.label("campaign"),
@@ -516,7 +502,6 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
         .subquery()
     )
 
-    # 🔹 判斷新用戶的條件
     if start_date and end_date:
         new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
             first_seen_subq.c.first_seen < end_date + timedelta(days=1))
@@ -528,7 +513,6 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
     else:
         new_user_cond = True
 
-    # 🔹 對 EventTrafficSource 的篩選條件（時間）
     traffic_conditions = []
     if start_date:
         traffic_conditions.append(EventTrafficSource.created_at >= start_date)
@@ -536,7 +520,6 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
         traffic_conditions.append(
             EventTrafficSource.created_at < end_date + timedelta(days=1))
 
-    # 🔹 主查詢：從使用者的 utm_campaign 出發
     stmt = (
         select(
             UTMParams.utm_campaign.label("campaign"),
@@ -567,14 +550,12 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
 
     result = db.execute(stmt).mappings().all()
 
-    # 🔹 總體統計
     total_users = sum(row["total_interactions"] for row in result)
     total_new_users = sum(row["new_users"] for row in result)
     overall_ratio = round(total_new_users * 100 /
                           total_users, 1) if total_users else 0.0
     total_level = classify_new_user_ratio(overall_ratio, total_users)
 
-    # 🔹 每筆 campaign 資料
     final_data = []
     for row in result:
         total = row["total_interactions"]

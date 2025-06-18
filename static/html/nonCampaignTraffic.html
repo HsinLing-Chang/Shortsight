@@ -11,7 +11,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/source-medium.css" />
+    <link rel="stylesheet" href="/static/style/non-campaign-traffic.css" />
     <style>
       body {
         visibility: hidden;
@@ -70,22 +70,12 @@
                 <div class="report-container">
                   <div class="campaign-nav mg-b1">
                     <a href="/campaign"><div>All campaigns</div></a>
-                    <div class="active-nav">Source/Medium</div>
-                    <a href="/campaign/non-campaign"
-                      ><div>Other Traffic</div></a
-                    >
+                    <a href="/campaign/source"><div>Source/Medium</div></a>
+                    <div class="active-nav">Other Traffic</div>
                   </div>
-                  <div class="source-container">
-                    <div class="source-header">
-                      <div class="camapign-select-section">
-                        <label for="camapign-select"
-                          >Campaign:
-                          <select name="camapign-select" id="camapign-select">
-                            <option value="all">All</option>
-                          </select>
-                        </label>
-                      </div>
-                      <div class="event-select-section mg-l3">
+                  <div class="non-campaign-container">
+                    <div class="non-campaign-header">
+                      <div class="select-section">
                         <label for="event-type"
                           >Event:
                           <select name="event-type" id="event-type">
@@ -95,6 +85,7 @@
                           </select>
                         </label>
                       </div>
+
                       <div class="date-controls">
                         <label class="mg-l3">
                           Start:
@@ -107,9 +98,9 @@
                         <button id="apply-range" class="mg-l1">Apply</button>
                       </div>
                     </div>
-                    <div class="source-content card-shadow mg-t2">
+                    <div class="traffic-content card-shadow mg-t2">
                       <div class="grid-header">
-                        <div>Source/Medium</div>
+                        <div>Source/medium</div>
                         <div>All users</div>
                         <div>New users</div>
                         <div>New user ratio</div>
@@ -121,9 +112,7 @@
                         <div class="summary-new-users"></div>
                         <div class="summary-ratio"></div>
                         <div>
-                          <span class="summary-level" id="summary-level"
-                            >Very high</span
-                          >
+                          <span class="summary-level" id="summary-level"></span>
                         </div>
                       </div>
                       <div class="append"></div>
@@ -141,6 +130,6 @@
     </div>
 
     <script defer src="/static/js/navbar.js"></script>
-    <script defer src="/static/js/sourceMedium.js"></script>
+    <script defer src="/static/js/nonCampaignTraffic.js"></script>
   </body>
 </html>

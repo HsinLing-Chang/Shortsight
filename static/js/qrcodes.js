@@ -1,13 +1,35 @@
 class QrcodeCard {
   constructor() {
     this.qrcodeCardContainer = document.querySelector(".qrcode-card-container");
-
+    this.downloadME = document.querySelector(".download-me");
     this.qrocdeInfo = [];
     if (this.qrcodeCardContainer) {
       this.getCardInfo();
     }
   }
-
+  async downloadQRcode(uuid, imgFormat) {
+    const response = await fetch(`/api/qrcode/${uuid}/${imgFormat}`, {
+      credentials: "include",
+    });
+    // const result = await response.json();
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${uuid}.${imgFormat}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url); // 清理
+    // if (result.ok) {
+    //   const link = document.createElement("a");
+    //   link.href = result.data;
+    //   link.download = "my_qrcode.png";
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    // }
+  }
   getQrcodeDetail(id) {
     location.href = `/qrcodes/${id}`;
   }
@@ -110,12 +132,21 @@ class QrcodeCard {
       download.innerHTML = `
       <i class="fa-solid fa-download"></i>
       <div class="more">
-        <div>Download JPEG</div>
-        <div>Download PNG</div>
-        <div>Download SVG</div>
+        <div class="jpeg" >Download JPEG</div>
+        <div class="png">Download PNG</div>
       </div>
     `;
-
+      //加入下載事件
+      // const jpegBtn = download.querySelector(".jpeg");
+      // const pngBtn = download.querySelector(".png");
+      // jpegBtn.addEventListener("click", () => {
+      //   alert("download...");
+      //   this.downloadQRcode(data.uuid, "jpeg");
+      // });
+      // pngBtn.addEventListener("click", () => {
+      //   alert("download...");
+      //   this.downloadQRcode(data.uuid, "png");
+      // });
       // view-detail 功能
       const viewDetail = this.createElement("div", ["view-detail", "pd-1"]);
       viewDetail.innerHTML = `
@@ -123,7 +154,7 @@ class QrcodeCard {
       <span> View Detail</span>
     `;
       this.addClickEvent(dropDown);
-      this.addClickEvent(download);
+      this.addClickEvent(download, data.uuid);
       viewDetail.addEventListener("click", () => {
         this.getQrcodeDetail(data.qr_code.id);
       });
@@ -169,23 +200,8 @@ class QrcodeCard {
       this.qrcodeCardContainer.appendChild(card);
     });
   }
-  //   addclickEvent(btn) {
-  //     const more = btn.querySelector(".more");
 
-  //     btn.addEventListener("click", (e) => {
-  //       e.stopPropagation(); // 阻止冒泡，不會觸發 document 的 click
-  //       more.classList.toggle("display");
-  //     });
-
-  //     // 點擊其他地方時，關閉 .more
-  //     document.addEventListener("click", (e) => {
-  //       if (!btn.contains(e.target)) {
-  //         more.classList.remove("display");
-  //       }
-  //     });
-  //     //   more.classList.toggle("display");
-  //   }
-  addClickEvent(btn) {
+  addClickEvent(btn, uuid = null) {
     const more = btn.querySelector(".more");
     if (!more) return;
 
@@ -197,6 +213,19 @@ class QrcodeCard {
       document.querySelectorAll(".more.display").forEach((el) => {
         if (el !== more) el.classList.remove("display");
       });
+
+      const jpegBtn = btn.querySelector(".jpeg");
+      const pngBtn = btn.querySelector(".png");
+      if (jpegBtn && pngBtn) {
+        jpegBtn.addEventListener("click", () => {
+          more.classList.remove("display");
+          this.downloadQRcode(uuid, "jpeg");
+        });
+        pngBtn.addEventListener("click", () => {
+          more.classList.remove("display");
+          this.downloadQRcode(uuid, "png");
+        });
+      }
 
       // 切換自己
       more.classList.toggle("display");

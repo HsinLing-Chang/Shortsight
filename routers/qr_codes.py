@@ -15,6 +15,7 @@ import qrcode
 from datetime import datetime
 import re
 import io
+from utils.S3 import aws_s3
 from pydantic import ConfigDict,  field_serializer, RootModel
 router = APIRouter(prefix="/api")
 
@@ -180,3 +181,33 @@ async def delete_qrcode(id: int, db: Annotated[Session, Depends(get_db)], curren
     await aws_s3.delete_qrcode(uuid)
 
     return JSONResponse(content={"ok": True})
+
+
+@router.post("/qrcodes/{uuid}")
+async def create_other_qrcode(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    try:
+        stmt = select(UrlMapping.id).where(UrlMapping.uuid ==
+                                           uuid, UrlMapping.user_id == current_user.id)
+        url_id = db.execute(stmt).scalar_one_or_none()
+        if not url_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Link not found.")
+        image_bytes = create_qrcode_image(uuid)
+        CDN_path = await aws_s3.upload_qrcode(uuid, image_bytes)
+        new_qrcode = QRCode(mappping_url=url_id, image_path=CDN_path)
+
+        db.add(new_qrcode)
+        db.commit()
+        qrcode_id = new_qrcode.id
+        return JSONResponse(content={"ok": True, "qrcodeId": qrcode_id})
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/qrcode/{uuid}/{format}")
+async def get_url(uuid: str, format: str, current_user=Depends(JWTtoken.get_current_user)):
+    url = await aws_s3.download_qrcode(uuid, format)
+    return url

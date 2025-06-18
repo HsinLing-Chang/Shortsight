@@ -126,8 +126,10 @@
 }
 .copy-btn {
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 3px;
-
+  height: 40px;
   background-color: #eff6ff;
   padding: 8px 12px;
   border: none;

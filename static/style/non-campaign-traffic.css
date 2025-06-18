@@ -33,32 +33,21 @@ a {
   display: flex;
   flex-direction: column;
 }
-.campaign-container {
-  display: flex;
-  flex-direction: column;
+.traffic-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
 }
 
-.campaign-header {
+.non-campaign-header {
   display: flex;
   align-items: center;
-  gap: 3rem;
 }
-.campaign-content {
-  display: grid;
-  border-radius: 10px;
-  padding: 2rem;
-  background-color: #fff;
-}
-
 .grid-header,
 .grid-content,
 .append {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-}
-.grid-header {
-  border-bottom: 1px solid #ccc;
-  font-weight: 600;
+  grid-template-columns: repeat(5, 1fr);
 }
 .grid-header > div,
 .grid-content > div,
@@ -66,10 +55,6 @@ a {
   padding: 1rem 2rem;
   text-align: center;
 }
-/* .append {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-} */
 .very-high {
   background-color: #b3ecff;
   color: #004e6e;

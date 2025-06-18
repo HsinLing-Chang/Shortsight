@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from utils.dependencies import get_db
 from sqlalchemy import select, func, case, distinct, cast, Float
 from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import literal_column
+from sqlalchemy.sql import literal_column, or_
 from typing import Annotated, Optional
 from utils.security import JWTtoken
 from database.model import UrlMapping, EventLog, UTMParams, EventTrafficSource
@@ -72,3 +72,195 @@ def get_all_campaign(db: Annotated[Session, Depends(get_db)], current_user=Depen
 
     campaigns = db.execute(stmt).scalars().all()
     return JSONResponse(content={"ok": True, "data": campaigns})
+
+
+@router.get("/non-campaign-traffic")
+def get_non_campaign_traffic(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user), start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
+    first_seen_subq = (
+        select(
+            EventTrafficSource.visitor_id,
+            func.min(EventTrafficSource.created_at).label("first_seen")
+        )
+        .where(EventTrafficSource.visitor_id.isnot(None))
+        .group_by(EventTrafficSource.visitor_id)
+        .subquery()
+    )
+
+    if start_date and end_date:
+        new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
+            first_seen_subq.c.first_seen < end_date + timedelta(days=1))
+    elif start_date:
+        new_user_cond = first_seen_subq.c.first_seen >= start_date
+    elif end_date:
+        new_user_cond = first_seen_subq.c.first_seen < end_date + \
+            timedelta(days=1)
+    else:
+        new_user_cond = True
+
+    traffic_conditions = []
+    if start_date:
+        traffic_conditions.append(EventTrafficSource.created_at >= start_date)
+    if end_date:
+        traffic_conditions.append(
+            EventTrafficSource.created_at < end_date + timedelta(days=1))
+    stmt = (select(
+        EventTrafficSource.source,
+        EventTrafficSource.medium,
+        func.count(EventTrafficSource.id).label("total_interactions"),
+        func.count(
+            distinct(
+                case((new_user_cond, EventTrafficSource.visitor_id))
+            )
+        ).label("new_users")
+    )
+        .select_from(EventTrafficSource)
+        .join(UrlMapping, UrlMapping.id == EventTrafficSource.mapping_id)
+        .outerjoin(first_seen_subq, EventTrafficSource.visitor_id == first_seen_subq.c.visitor_id)
+        .where(
+        UrlMapping.user_id == current_user.id,
+        or_(
+            EventTrafficSource.campaign.is_(None),
+            EventTrafficSource.campaign == "",
+        ),
+        *traffic_conditions
+    )
+        .group_by(EventTrafficSource.source, EventTrafficSource.medium))
+    result = db.execute(stmt).mappings().all()
+    total_users = sum(row["total_interactions"] for row in result)
+    total_new_users = sum(row["new_users"] for row in result)
+    overall_ratio = round(total_new_users * 100 /
+                          total_users, 1) if total_users else 0.0
+    total_level = classify_new_user_ratio(overall_ratio, total_users)
+    non_campaign_data = []
+    for row in result:
+        total = row["total_interactions"]
+        new = row["new_users"]
+        ratio = round(new * 100 / total, 1) if total else 0.0
+        level = classify_new_user_ratio(ratio, total)
+
+        non_campaign_data.append({
+            "source": row["source"],
+            "medium": row["medium"],
+            "total_interactions": total,
+            "new_users": new,
+            "new_user_ratio": ratio,
+            "new_user_level": level
+        })
+    results = {
+        "summary": {
+            "total_users": total_users,
+            "total_new_users": total_new_users,
+            "overall_ratio": overall_ratio,
+            "new_user_level": total_level
+        },
+        "data":  non_campaign_data
+    }
+    return JSONResponse(content={"ok": True, "data": results})
+
+
+@router.get("/non-campaign-traffic-event-type")
+async def get_non_campaign_traffic_event_type(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user), event_type: str = "click", start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
+    first_seen_subq = (
+        select(
+            EventTrafficSource.visitor_id,
+            func.min(EventTrafficSource.created_at).label("first_seen")
+        )
+        .where(EventTrafficSource.visitor_id.isnot(None))
+        .group_by(EventTrafficSource.visitor_id)
+        .subquery()
+    )
+
+    if start_date and end_date:
+        new_user_cond = (first_seen_subq.c.first_seen >= start_date) & (
+            first_seen_subq.c.first_seen < end_date + timedelta(days=1))
+    elif start_date:
+        new_user_cond = first_seen_subq.c.first_seen >= start_date
+    elif end_date:
+        new_user_cond = first_seen_subq.c.first_seen < end_date + \
+            timedelta(days=1)
+    else:
+        new_user_cond = True
+
+    traffic_conditions = []
+    if start_date:
+        traffic_conditions.append(EventTrafficSource.created_at >= start_date)
+    if end_date:
+        traffic_conditions.append(
+            EventTrafficSource.created_at < end_date + timedelta(days=1))
+
+    if event_type:
+        traffic_conditions.append(EventTrafficSource.event_type == event_type)
+
+    stmt = (
+        select(
+            EventTrafficSource.source,
+            EventTrafficSource.medium,
+            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(
+                distinct(
+                    case((new_user_cond, EventTrafficSource.visitor_id))
+                )
+            ).label("new_users")
+        )
+        .select_from(EventTrafficSource)
+        .join(UrlMapping, UrlMapping.id == EventTrafficSource.mapping_id)
+        .outerjoin(first_seen_subq, EventTrafficSource.visitor_id == first_seen_subq.c.visitor_id)
+        .where(
+            UrlMapping.user_id == current_user.id,
+            or_(
+                EventTrafficSource.campaign.is_(None),
+                EventTrafficSource.campaign == "",
+            ),
+            *traffic_conditions
+        )
+        .group_by(EventTrafficSource.source, EventTrafficSource.medium)
+    )
+
+    result = db.execute(stmt).mappings().all()
+    total_users = sum(row["total_interactions"] for row in result)
+    total_new_users = sum(row["new_users"] for row in result)
+    overall_ratio = round(total_new_users * 100 /
+                          total_users, 1) if total_users else 0.0
+    total_level = classify_new_user_ratio(overall_ratio, total_users)
+    non_campaign_data = []
+    for row in result:
+
+        total = row["total_interactions"]
+        new = row["new_users"]
+        ratio = round(new * 100 / total, 1) if total else 0.0
+        level = classify_new_user_ratio(ratio, total)
+
+        non_campaign_data.append({
+            "source": row["source"],
+            "medium": row["medium"],
+            "total_interactions": total,
+            "new_users": new,
+            "new_user_ratio": ratio,
+            "new_user_level": level
+        })
+
+    results = {
+        "summary": {
+            "total_users": total_users,
+            "total_new_users": total_new_users,
+            "overall_ratio": overall_ratio,
+            "new_user_level": total_level
+        },
+        "data":  non_campaign_data
+    }
+    return JSONResponse(content={"ok": True, "data": results})
+
+
+def classify_new_user_ratio(ratio: float, total) -> str:
+    if total < 5:
+        return "Unstable"
+    elif ratio >= 70:
+        return "Very High"
+    elif ratio >= 50:
+        return "High"
+    elif ratio >= 30:
+        return "Moderate"
+    elif ratio >= 10:
+        return "Low"
+    else:
+        return "Very Low"

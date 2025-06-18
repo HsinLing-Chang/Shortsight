@@ -23,7 +23,7 @@ class Analytics {
       credentials: "include",
     });
     const linkPerformance = await response.json();
-    console.log(linkPerformance);
+    // console.log(linkPerformance);
     if (linkPerformance.ok) {
       this.allItems = linkPerformance.data.items;
       this.currentPage = 1;
@@ -36,7 +36,7 @@ class Analytics {
   }
   renderPage() {
     const container = document.querySelector(".links-display");
-    container.innerHTML = ""; // 清空舊內容
+    container.innerHTML = "";
 
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;

@@ -99,6 +99,11 @@ async def index(request: Request):
     return FileResponse("./static/html/sourceMedium.html", media_type="text/html")
 
 
+@app.get("/campaign/non-campaign", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/nonCampaignTraffic.html", media_type="text/html")
+
+
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request, exc: HTTPException):
     return JSONResponse(content={"error": True, "message": exc.detail}, status_code=exc.status_code)
