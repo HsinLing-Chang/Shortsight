@@ -13,7 +13,7 @@ class Campaign {
   buttonChange() {
     const eventType = this.eventType.value;
     const start = document.getElementById("start-date").value;
-    console.log(eventType);
+    // console.log(eventType);
     const end = document.getElementById("end-date").value;
     if (!start && !end) {
       this.getAllCampaign(eventType, null, null);
@@ -26,13 +26,13 @@ class Campaign {
     const startDate = new Date(start).toISOString().slice(0, 10);
     const endDate = new Date(end).toISOString().slice(0, 10);
 
-    console.log(endDate);
+    // console.log(endDate);
     this.getAllCampaign(eventType, startDate, endDate);
   }
 
   async getAllCampaign(eventType = null, startDate = null, endDate = null) {
     const url = this.getUrl(eventType, startDate, endDate);
-    console.log(url);
+    // console.log(url);
     const response = await fetch(url, {
       credentials: "include",
     });
@@ -40,7 +40,7 @@ class Campaign {
     if (result.ok) {
       const summary = result.data.summary;
 
-      console.log(result.data);
+      // console.log(result.data);
       const data = result.data.data;
       this.appendSummary(summary);
       this.appendGridData(this.gridContent, data);

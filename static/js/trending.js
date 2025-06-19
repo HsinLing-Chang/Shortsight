@@ -16,9 +16,9 @@ class Trending {
         }
         const startDate = new Date(start);
         const endDate = new Date(end);
-        console.log(endDate);
+        // console.log(endDate);
         const diffDays =
-          Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1; // 加 1 表示包含當天
+          Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
         if (diffDays < 7) {
           alert("請選擇至少 7 天的日期範圍。");
@@ -29,7 +29,7 @@ class Trending {
     this.init();
   }
   async init() {
-    await this.getTrend(); // ✅ 確保初次正確載入圖表
+    await this.getTrend();
   }
   async getTrend(startDate = null, endDate = null) {
     // const params = new URLSearchParams({
@@ -47,18 +47,17 @@ class Trending {
       credentials: "include",
     });
     const data = await response.json();
-    console.log(data.data);
+    // console.log(data.data);
     this.trendChart(data.data);
     this.topLink(data.data.summary, data.data.top_info);
   }
 
   topLink(summary, topInfo) {
-    const container = document.querySelector(".top-link-info"); // 你要放入的容器
+    const container = document.querySelector(".top-link-info");
     container.innerHTML = "";
     topInfo.forEach((info) => {
       const topLink = this.createElement("div", ["top-link", "card-shadow"]);
 
-      // 🔹 第一層：Top Link + a 標籤
       const linkDiv = this.createElement("div", ["mg-b05"]);
       const strongLabel = this.createElement("strong", [], "Link:");
       const anchor = this.createElement("a", ["a-link"]);
@@ -72,7 +71,6 @@ class Trending {
       linkDiv.appendChild(strongLabel);
       linkDiv.appendChild(anchor);
 
-      // 🔹 第二層：Clicks
       const clickDiv = this.createElement("div", ["mg-b05"]);
       const clickLabel = this.createElement("strong", [], "Clicks:");
       const clickValue = this.createElement(
@@ -83,14 +81,12 @@ class Trending {
       clickDiv.appendChild(clickLabel);
       clickDiv.appendChild(clickValue);
 
-      // 🔹 第三層：Scans
       const scanDiv = this.createElement("div");
       const scanLabel = this.createElement("strong", [], "Scans:");
       const scanValue = this.createElement("span", "scans", ` ${info.scans}`);
       scanDiv.appendChild(scanLabel);
       scanDiv.appendChild(scanValue);
 
-      // 加入三個區塊
       topLink.appendChild(linkDiv);
       topLink.appendChild(clickDiv);
       topLink.appendChild(scanDiv);
@@ -195,7 +191,7 @@ class Trending {
     };
     const ctx = document.getElementById("trendChart").getContext("2d");
     if (this.trendChartInstance) {
-      this.trendChartInstance.destroy(); // 更新前先銷毀舊圖
+      this.trendChartInstance.destroy();
     }
 
     this.trendChartInstance = new Chart(ctx, config);

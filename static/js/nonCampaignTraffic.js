@@ -72,7 +72,6 @@ class Traffic {
   }
   appendGridData(container, data) {
     container.innerHTML = "";
-
     data.forEach((item) => {
       container.appendChild(
         this.createElement("div", [], `${item.source}/${item.medium}`)

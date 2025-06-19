@@ -90,7 +90,7 @@ def get_all_interaction_counts(db, user_id, start_date, end_date):
         end_date = today
     if not start_date:
         start_date = end_date - timedelta(days=27)
-        print(start_date)
+        # print(start_date)
     start_datetime = datetime.combine(start_date, time.min)
     end_datetime = datetime.combine(end_date, time.max)
     stmt = (
@@ -194,7 +194,7 @@ def build_top_info(data):
             }
         )
     return top_links
-    print(top_links)
+    # print(top_links)
 
 # click_scan ratio
 

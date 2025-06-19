@@ -91,7 +91,6 @@ class QrcodesAnalytics {
     const more = btn.querySelector(".more");
     if (!more) return;
 
-    // 點擊按鈕時
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
 

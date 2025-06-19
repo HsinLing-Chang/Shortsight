@@ -75,7 +75,7 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
     )
     result = db.execute(stmt).mappings().all()
     summary = summary_referrer(result)
-    print(summary)
+    # print(summary)
     return JSONResponse(content={"ok": True, "data": summary})
 
 

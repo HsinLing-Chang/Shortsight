@@ -104,7 +104,7 @@ class LinksAnalytics {
       if (!response.ok) throw new Error("載入失敗");
       const linkData = await response.json();
       if (linkData.data) {
-        console.log(linkData.data);
+        // console.log(linkData.data);
         this.uuid = linkData.data.uuid;
         this.title.textContent = linkData.data.title;
         const shortCode = linkData.data.short_key

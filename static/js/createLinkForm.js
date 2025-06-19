@@ -69,7 +69,7 @@ class CreateLink {
       if (!this.validate()) throw Error("Form cannot be empty.");
       this.loader.classList.add("visible");
       const payload = this.getPayload();
-      console.log(payload.title);
+      // console.log(payload.title);
       // const token = localStorage.getItem("access_token");
       const response = await fetch("/api/links/shorten", {
         method: "POST",

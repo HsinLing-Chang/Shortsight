@@ -51,7 +51,7 @@ async def redirect_qr_code(short_code: str, request: Request, db: Annotated[Sess
     traffic_info, referer = get_client_referer(
         request,  utm_source, utm_medium, utm_campaign)
 
-    print(geolocation_info)
+    # print(geolocation_info)
 
     new_Event = EventLog(mapping_id=url_id,
                          visitor_id=visitor_id,

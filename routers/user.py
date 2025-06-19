@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api")
 
 @router.get("/user")
 async def get_all_user(db: Session = Depends(get_db), user_info=Depends(JWTtoken.get_current_user)):
-    print(user_info.username, user_info.id, user_info.email)
+    # print(user_info.username, user_info.id, user_info.email)
     stmt = select(User).where(User.id == user_info.id)
     userData = db.execute(stmt).scalar_one_or_none()
 

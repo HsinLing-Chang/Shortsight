@@ -3,7 +3,7 @@ async function drawMixedMap() {
     credentials: "include",
   }).then((r) => r.json());
   const interactionData = geoData.data;
-  console.log(interactionData);
+  // console.log(interactionData);
 
   //   const interactionData = [
   //     {

@@ -37,6 +37,8 @@ a {
   background-color: #fff;
   padding: 2rem;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
 }
 
 .non-campaign-header {

@@ -1,8 +1,7 @@
 from fastapi import HTTPException
 from utils.statistics import fill_missing_dates, get_percent
-from database.model import UrlMapping, EventLog, IpLocation, EventTrafficSource
+from database.model import UrlMapping, EventLog, IpLocation
 from sqlalchemy import select,  func, desc
-from collections import defaultdict
 
 
 async def get_click_location(db, uuid, user_id,  one_month_ago, limit=5):
@@ -84,7 +83,7 @@ async def get_referrer(db, uuid, user_id, one_month_ago):
         )
         result = db.execute(stmt).all()
         data = dict(result)
-        print(data)
+        # print(data)
         return data
     except Exception as e:
         print(e)
@@ -109,7 +108,7 @@ async def get_device(db, uuid, user_id, one_month_ago):
         )
         result = db.execute(stmt).all()
         data = dict(result)
-        print(data)
+        # print(data)
         return data
     except Exception as e:
         print(e)

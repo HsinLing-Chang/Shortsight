@@ -36,7 +36,7 @@ class Index {
     });
     const result = await response.json();
     const data = result.data;
-    console.log(data);
+    // console.log(data);
 
     this.totalInteractions.textContent = `Total interactions: ${data.total}`;
     this.totalClicks.textContent = `${data.clicks} (${data.click_percent} %)`;
@@ -109,7 +109,7 @@ class Index {
         }),
       });
       const result = await response.json();
-      console.log(result);
+      // console.log(result);
       nameSpan.textContent = newName;
 
       this.editBtn.textContent = "Edit";

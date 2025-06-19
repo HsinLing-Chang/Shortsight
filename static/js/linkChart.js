@@ -31,7 +31,7 @@ class CreateChart {
     const result = await response.json();
     if (result.ok && result.data.total > 0) {
       // console.log(result);
-      console.log(result.data);
+      // console.log(result.data);
 
       this.drawClickEvents(result.data.clickEvents, result.data.total);
       this.drawLocation(result.data.location);
@@ -58,12 +58,12 @@ class CreateChart {
     const result = await response.json();
     if (result.ok) {
       const channels = result.data.channels;
-      console.log(channels);
+      // console.log(channels);
       // this.createReferrerData(channels);
       this.drawReferrerPie(channels);
       this.createNewReferrerData(this.newReferrerContainer, channels);
     }
-    console.log(result);
+    // console.log(result);
   }
   drawClickEvents(rawData, total) {
     const labels = rawData.map((item) => item.day);
@@ -405,23 +405,17 @@ class CreateChart {
   }
   createNewReferrerData(container, channels) {
     channels.forEach((channelObj) => {
-      // Channel 標題加上總點擊數
       const title = `${channelObj.channel} (${channelObj.total_clicks})`;
 
-      // 建立 channel 容器
       const channelContainer = this.createElement("div", "channel-container");
       channelContainer.style.marginBottom = "12px";
 
-      // 建立 channel 標題（可點擊）
       const channelName = this.createElement("div", ["channel-name"], title);
 
-      // 建立表格區（預設隱藏）
       const gridContainer = this.createElement("div", "grid-container");
-      gridContainer.style.display = "none"; // 預設收合
+      gridContainer.style.display = "none";
 
-      // 資料列
       if (channelObj.sources && channelObj.sources.length > 0) {
-        // 表頭
         const headers = ["Channel", "Source", "Medium", "Domain", "Click"];
         headers.forEach((title) =>
           gridContainer.appendChild(this.createElement("div", "g-title", title))
@@ -447,13 +441,11 @@ class CreateChart {
         });
       }
 
-      // 點擊切換展開/收合
       channelName.addEventListener("click", () => {
         gridContainer.style.display =
           gridContainer.style.display === "none" ? "grid" : "none";
       });
 
-      // 組合進 DOM
       channelContainer.appendChild(channelName);
       channelContainer.appendChild(gridContainer);
       container.appendChild(channelContainer);

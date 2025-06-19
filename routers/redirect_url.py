@@ -51,7 +51,7 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
             return RedirectResponse(url=target_url)
         traffic_info, referer = get_client_referer(
             request,  utm_source, utm_medium, utm_campaign)
-        print(traffic_info)
+        # print(traffic_info)
         ip = get_client_ip(request)
         if ip in weird_ip:
             return RedirectResponse(url=target_url)
@@ -61,7 +61,7 @@ def redirect_url(request: Request, links: str, db: Session = Depends(get_db)):
         geolocation_info = lookup_ip(ip)
         save_geo_to_db(db, geolocation_info)
 
-        print(geolocation_info)
+        # print(geolocation_info)
         new_Event = EventLog(
             mapping_id=url_id,
             visitor_id=visitor_id,

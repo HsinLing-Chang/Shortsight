@@ -31,13 +31,13 @@ class SourceMedium {
   }
   async getSourceData(eventType, startDate, endDate, campaign = null) {
     const url = this.getUrl(eventType, startDate, endDate, campaign);
-    console.log(url);
+    // console.log(url);
     const response = await fetch(url, {
       credentials: "include",
     });
     const result = await response.json();
     if (result.ok) {
-      console.log(result);
+      // console.log(result);
       const summary = result.data.summary;
       const data = result.data.data;
       this.appendSummary(summary);
@@ -92,7 +92,7 @@ class SourceMedium {
       container.appendChild(
         this.createElement("div", [], `${item.new_user_ratio} %`)
       );
-      // 最後一欄有 <span class="high">high</span>
+
       const spanWrapper = this.createElement("div");
       const span = this.createElement("span", [], item.new_user_level); // 套上 high / medium / low class
       this.addLevelColor(span);
@@ -132,7 +132,7 @@ class SourceMedium {
       credentials: "include",
     });
     const result = await response.json();
-    console.log(result);
+    // console.log(result);
     if (result.ok) {
       this.appednSelect(result.data);
     }

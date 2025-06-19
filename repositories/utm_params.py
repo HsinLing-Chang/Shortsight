@@ -92,7 +92,7 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
             "new_user_ratio": ratio,
             "new_user_level": level
         })
-    print(final_data)
+    # print(final_data)
     return {
         "summary": {
             "total_users": total_users,
@@ -181,7 +181,7 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
             "new_user_ratio": ratio,
             "new_user_level": level
         })
-    print(final_data)
+    # print(final_data)
     return {
         "summary": {
             "total_users": total_users,
@@ -274,7 +274,7 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
             "new_user_ratio": ratio,
             "new_user_level": level
         })
-    print(final_data)
+    # print(final_data)
     return {
         "summary": {
             "total_users": total_users,
@@ -363,7 +363,7 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
         level = classify_new_user_ratio(ratio, total)
         final_data.append(
             {**row, "new_user_ratio": ratio, "new_user_level": level})
-    print(final_data)
+    # print(final_data)
 
     return {
         "summary": {
@@ -435,7 +435,7 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
         .select_from(UrlMapping)
         .outerjoin(
             UTMParams,
-            UrlMapping.id == UTMParams.mapping_id  # 所有該用戶設定過的 UTM
+            UrlMapping.id == UTMParams.mapping_id
         )
         .outerjoin(
             EventTrafficSource,
