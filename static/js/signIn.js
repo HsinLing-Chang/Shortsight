@@ -4,6 +4,8 @@ class SignIn {
     this.password = document.querySelector(".password");
     this.form = document.querySelector(".sign-in-form");
     this.signInMsg = document.querySelector("#signin-msg");
+    this.email.value = "demo@example.com";
+    this.password.value = "demo";
     if (this.form) {
       this.form.addEventListener("submit", async (e) => {
         e.preventDefault();

@@ -279,3 +279,22 @@
 .grid-container > div:not(.g-title):hover {
   background: #bfe0ef;
 }
+
+/* UTM section */
+.utm-container {
+  /* background-color: violet; */
+  padding: 1rem 0;
+  display: none;
+}
+.utm-content {
+  display: flex;
+  align-items: center;
+}
+.hp-30 {
+  height: 30px;
+  padding: 0.25rem 0.5rem;
+}
+.line-utm {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 0rem 0 1rem;
+}

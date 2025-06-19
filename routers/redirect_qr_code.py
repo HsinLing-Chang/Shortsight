@@ -21,7 +21,7 @@ async def redirect_qr_code(short_code: str, request: Request, db: Annotated[Sess
         stmt).one_or_none()
     if not url_id:
         raise HTTPException(status_code=404, detail="短網址不存在")
-    print(url_id, url_uuid, target_url, utm_source, utm_medium, utm_campaign)
+    # print(url_id, url_uuid, target_url, utm_source, utm_medium, utm_campaign)
     visitor_id = request.cookies.get(f"ss_visitor_id_qr_{short_code}")
     recent_click = request.cookies.get(f"ss_recent_scan_{url_uuid}")
 
