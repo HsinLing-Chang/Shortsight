@@ -58,6 +58,8 @@ class UrlMapping(Base):
         "UTMParams", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True, uselist=False)
     qr_code: Mapped["QRCode"] = relationship(
         "QRCode", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True,  uselist=False)
+    traffic_sources: Mapped[list["EventTrafficSource"]] = relationship(
+        "EventTrafficSource", back_populates="mapping", cascade="all, delete-orphan", passive_deletes=True)
 
 
 class UTMParams(Base):
@@ -117,6 +119,33 @@ class EventLog(Base):
     # relationships
     mapping: Mapped["UrlMapping"] = relationship(
         "UrlMapping", back_populates="events")
+    # source_info: Mapped["EventTrafficSource"] = relationship(
+    #     "EventTrafficSource", back_populates="event", uselist=False, cascade="all, delete-orphan")
+
+
+class EventTrafficSource(Base):
+    __tablename__ = "event_traffic_source"
+    id: Mapped[int] = mapped_column(
+        INTEGER, primary_key=True, autoincrement=True)
+    visitor_id: Mapped[str | None] = mapped_column(
+        CHAR(36), nullable=True, index=True)
+    event_type: Mapped[str] = mapped_column(
+        Enum("scan", "click", name="event_type"), nullable=False, index=True)
+    mapping_id: Mapped[int] = mapped_column(
+        ForeignKey("url_mapping.id", ondelete="CASCADE"), index=True)
+    domain: Mapped[str | None] = mapped_column(
+        VARCHAR(100), nullable=True, comment="從 referrer 拆解出來的 domain")
+    source: Mapped[str | None] = mapped_column(
+        VARCHAR(100), nullable=True, comment="utm_source 或 domain")
+    medium: Mapped[str | None] = mapped_column(
+        VARCHAR(50), nullable=True, comment="utm_medium 或分類結果，例如 organic/referral")
+    campaign: Mapped[str | None] = mapped_column(VARCHAR(100), nullable=True)
+    channel: Mapped[str | None] = mapped_column(VARCHAR(
+        50), nullable=True, comment="高階 GA-style channel 分類，例如 Social/Search/Direct")
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True), server_default=func.current_timestamp(), nullable=False, index=True)
+    mapping: Mapped["UrlMapping"] = relationship(
+        "UrlMapping", back_populates="traffic_sources")
 
 
 class IpLocation(Base):
@@ -130,22 +159,3 @@ class IpLocation(Base):
 
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine, autocommit=False)
-
-
-# class UTM_params(Base):
-#     __tablename__ = "utm_params"
-#     id: Mapped[int] = mapped_column(
-#         INTEGER, primary_key=True, autoincrement=True)
-#     mapping_id: Mapped[int] = mapped_column(
-#         INTEGER, ForeignKey("url_mapping.id", ondelete="CASCADE"), nullable=False, index=True, unique=True)
-# utm_source: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
-# utm_medium: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
-# utm_campaign: Mapped[str | None] = mapped_column(
-#     VARCHAR(50), nullable=True)
-# # 關鍵字
-# utm_term: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
-# # A/B Test
-# utm_content: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
-# relationship
-#     mapping: Mapped["UrlMapping"] = relationship(
-#         "UrlMapping", back_populates="utm")

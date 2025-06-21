@@ -1,6 +1,23 @@
 from fastapi import Request
 from user_agents import parse
+from urllib.parse import urlparse, parse_qs
 # from device_detector import DeviceDetector
+
+GA_SOURCE_CATEGORIES = {
+    "com.linkedin.android": ("linkedin", "referral", "Organic Social"),
+    "linkedin":    ("linkedin", "referral", "Organic Social"),
+    "com.facebook.katana": ("facebook", "referral", "Organic Social"),
+    "facebook":    ("facebook", "referral", "Organic Social"),
+    "t.co":        ("Twitter", "referral", "Organic Social"),
+    "google":      ("google", "organic", "Organic Search"),
+    "bing":        ("bing", "organic", "Organic Search"),
+    "baidu":       ("baidu", "organic", "Organic Search"),
+    "yahoo":       ("yahoo", "organic", "Organic Search"),
+    "instagram":   ("instagram", "referral", "Organic Social"),
+    "youtube":     ("youtube", "referral", "Organic Video"),
+    "vimeo":       ("vimeo", "referral", "Organic Video"),
+    "s.ppluchuli.com":   ("shortsight", "referral", "Referral"),
+}
 
 
 def get_client_ip(request: Request) -> str:
@@ -12,25 +29,55 @@ def get_client_ip(request: Request) -> str:
     return request.client.host
 
 
-def get_client_referer(request: Request):
+def get_client_referer(request: Request, utm_source, utm_medium, utm_campaign):
     referer = request.headers.get("referer")
-    print(f"referer: {referer}")
-    if referer is None:
-        return "Direct"
-    elif "google" in referer:
-        return "Google"
-    elif "linkedin" in referer:
-        return "Linkedin"
-    elif "instagram" in referer:
-        return "Instagram"
-    elif "facebook" in referer:
-        return "Facebook"
-    elif "t.co" in referer:
-        return "X"
-    elif "ppluchuli.com" in referer:
-        return "Shortsight"
-    else:
-        return "Other"
+    domain = None
+
+    if referer:
+        parsed = urlparse(referer)
+        domain = parsed.netloc.lower()
+        if domain.startswith("www."):
+            domain = domain[4:]
+
+    parsed_source = utm_source or None
+    parsed_medium = utm_medium or None
+    parsed_campaign = utm_campaign or None
+
+    if utm_source or utm_medium:
+        return {
+            "domain": domain,
+            "source": parsed_source or "(direct)",
+            "medium": parsed_medium or "(none)",
+            "channel": "Referral",
+            "campaign": parsed_campaign
+        }, referer
+
+    if not referer:  # 沒有referrer就歸類在direct
+        return {
+            "domain": None,
+            "source": "(direct)",
+            "medium": "(none)",
+            "channel": "Direct",
+            "campaign": None
+        }, None
+
+    for known_domain, (source, medium, channel) in GA_SOURCE_CATEGORIES.items():
+        if known_domain in domain:
+            return {
+                "domain": domain,
+                "source": source,
+                "medium": medium,
+                "channel": channel,
+                "campaign": None
+            }, referer
+    # 有referrer但找不到
+    return {
+        "domain": domain,
+        "source": domain,
+        "medium": "referral",
+        "channel": "Referral",
+        "campaign": None
+    }, referer
 
 
 def get_client_device(request: Request):

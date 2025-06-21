@@ -36,7 +36,6 @@ class SideBarController {
     this._bindEvents();
     this.signOutBtn = document.querySelector(".login-state");
     this.path = window.location.pathname.split("/")[1];
-
     if (this.signOutBtn) {
       if (this.signOutBtn.textContent == "Sign In") return;
       this.signOutBtn.addEventListener("click", async () => this._signOut());

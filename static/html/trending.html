@@ -11,7 +11,7 @@
       referrerpolicy="no-referrer"
     />
     <link rel="stylesheet" href="/static/style/nav.css" />
-    <link rel="stylesheet" href="/static/style/campaign.css" />
+    <link rel="stylesheet" href="/static/style/trending.css" />
     <style>
       body {
         visibility: hidden;
@@ -19,7 +19,7 @@
     </style>
 
     <script src="/static/js/tokenValidate.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <title>Shrotsight</title>
   </head>
   <body>
@@ -49,7 +49,6 @@
           </li>
 
           <li class="campaign icon-only" data-text="Campaign">
-            <div class="active-indicator"></div>
             <i class="fa-solid fa-chart-line"></i>
           </li>
         </ul>
@@ -64,60 +63,57 @@
               <div class="page-real">
                 <!-- 頁面插入位置 -->
                 <div class="header">
-                  <h1>Campaign</h1>
+                  <h1>Analytics</h1>
                 </div>
                 <div class="line"></div>
                 <div class="report-container">
-                  <div class="campaign-nav mg-b1">
-                    <div class="active-nav">All campaigns</div>
-                    <a href="/campaign/source"><div>Source/Medium</div></a>
-                    <a href="/campaign/non-campaign"
-                      ><div>Other Traffic</div></a
-                    >
+                  <div class="analytics-nav mg-b1">
+                    <a href="/analytics"><div>Total Links</div></a>
+                    <div class="active-nav">Trend</div>
+                    <a href="/analytics/geoplot"><div>By location</div></a>
                   </div>
-                  <div class="campaign-container">
-                    <div class="campaign-header">
-                      <div class="select-section">
-                        <label for="event-type"
-                          >Event:
-                          <select name="event-type" id="event-type">
-                            <option value="all">All</option>
-                            <option value="click">Clicks</option>
-                            <option value="scan">Scans</option>
-                          </select>
-                        </label>
+                  <div class="trend-container">
+                    <div class="chart-info">
+                      <div class="summary">
+                        <h3 class="highest-day mg-b1"></h3>
                       </div>
+                      <div class="top-link-info">
+                        <div class="top-link">
+                          <div>
+                            <strong>Top Link:</strong>
+                            <a href="/links/short-key"
+                              ><span class="short-key"></span
+                            ></a>
+                          </div>
 
-                      <div class="date-controls">
-                        <label class="mg-l3">
-                          Start:
-                          <input type="date" id="start-date" />
-                        </label>
-                        <label class="mg-l3">
-                          End:
-                          <input type="date" id="end-date" />
-                        </label>
-                        <button id="apply-range" class="mg-l1">Apply</button>
-                      </div>
-                    </div>
-                    <div class="campaign-content card-shadow mg-t2">
-                      <div class="grid-header">
-                        <div>Campaign</div>
-                        <div>All users</div>
-                        <div>New users</div>
-                        <div>New user ratio</div>
-                        <div>Level</div>
-                      </div>
-                      <div class="grid-content">
-                        <div></div>
-                        <div class="summary-all-users">14</div>
-                        <div class="summary-new-users">4</div>
-                        <div class="summary-ratio">%</div>
-                        <div>
-                          <span class="summary-level" id="summary-level"></span>
+                          <div>
+                            <span>Clicks:</span><span class="clicks"></span>
+                          </div>
+                          <div>
+                            <strong>Scans:</strong><span class="scans"></span>
+                          </div>
+                        </div>
+                        <div class="top-link">
+                          <strong>Top Link:</strong>
+                          <span class="short-key"></span><br />
+                          <span>Clicks:</span><span class="clicks"></span><br />
+                          <strong>Scans:</strong><span class="scans"></span>
                         </div>
                       </div>
-                      <div class="append"></div>
+                    </div>
+                    <div class="trend-controls">
+                      <label>
+                        Start:
+                        <input type="date" id="start-date" />
+                      </label>
+                      <label>
+                        End:
+                        <input type="date" id="end-date" />
+                      </label>
+                      <button id="apply-range">Apply</button>
+                    </div>
+                    <div class="canvas-container card-shadow">
+                      <canvas id="trendChart" height="500"></canvas>
                     </div>
                   </div>
                 </div>
@@ -132,6 +128,6 @@
     </div>
 
     <script defer src="/static/js/navbar.js"></script>
-    <script defer src="/static/js/campaign.js"></script>
+    <script defer src="/static/js/trending.js"></script>
   </body>
 </html>

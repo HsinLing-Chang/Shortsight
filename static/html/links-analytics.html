@@ -79,11 +79,13 @@
                           <i class="fa-solid fa-copy"></i>
                           <div class="copy-text">copy</div>
                         </button>
+                        <div class="generate-view copy-btn"></div>
                         <div class="select-container mg-r1">
                           <div class="drop-down-btn">...</div>
                           <div class="drop-down">
-                            <div class="edit select">edit</div>
-                            <div class="delete select">delete</div>
+                            <div class="view-utm select">View UTM</div>
+                            <div class="edit select">Edit</div>
+                            <div class="delete select">Delete</div>
                           </div>
                         </div>
                       </div>
@@ -96,6 +98,70 @@
                       ></i
                       ><span></span>
                     </p>
+
+                    <div class="utm-container-false">
+                      <div class="line-utm"></div>
+                      <div class="utm-header mg-b1 font-ml">UTM params</div>
+                      <div class="utm-content">
+                        <div class="utm-campaign mg-r1">
+                          <label for="utm-campaign" class="font-rg"
+                            >Campaign:
+                          </label>
+                          <input
+                            type="text"
+                            id="utm-campaign"
+                            class="hp-30 b-rad-5"
+                          />
+                        </div>
+                        <div class="utm-source mg-r1">
+                          <label for="utm-source" class="font-rg"
+                            >Source:
+                          </label>
+                          <input
+                            type="text"
+                            id="utm-source"
+                            class="hp-30 b-rad-5"
+                          />
+                        </div>
+                        <div class="utm-medium mg-r1">
+                          <label for="utm-medium" class="font-rg"
+                            >Medium:
+                          </label>
+                          <input
+                            type="text"
+                            id="utm-medium"
+                            class="hp-30 b-rad-5"
+                          />
+                        </div>
+                        <button class="btn utmBtn">Create UTM</button>
+                      </div>
+                    </div>
+                    <div class="utm-container-true">
+                      <div class="line-utm"></div>
+                      <div class="utm-header mg-b1 font-ml">UTM params</div>
+                      <div class="utm-content flex-row">
+                        <div class="utm-params flex-row mg-r1">
+                          <div class="param-title font-ml font-rg mg-r05">
+                            Campaign:
+                          </div>
+                          <p class="campaign-text param-text hp-30"></p>
+                        </div>
+
+                        <div class="utm-params flex-row mg-r1">
+                          <div class="param-title flex-row font-rg mg-r05">
+                            Source:
+                          </div>
+                          <p class="source-text param-text hp-30"></p>
+                        </div>
+
+                        <div class="utm-params flex-row mg-r1">
+                          <div class="param-title flex-row font-rg mg-r05">
+                            Medium:
+                          </div>
+                          <p class="medium-text param-text hp-30">123</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <!-- <div>QRCODE</div> -->
 
@@ -114,7 +180,29 @@
                         <canvas id="pie-chart2"></canvas>
                       </div>
                     </div>
+                    <div id="referrer-container">
+                      <h2 class="mg-b1 t-channel">Channel details</h2>
+
+                      <!-- <div class="channel-container">
+                      <div class="channel-name">Organic Social(10)</div>
+                      <div class="grid-container">
+                        <div class="g-title">Channel</div>
+                        <div class="g-title">Source</div>
+                        <div class="g-title">Dedium</div>
+                        <div class="g-title">Domain</div>
+                        <div class="g-title">Click</div>
+                        這裡插入資料 -->
+                      <!-- <div>Organic Social</div>
+                        <div>facebook</div>
+                        <div>email</div>
+                        <div>facebook.com</div>
+                        <div>2</div>
+                      </div>
+                    </div> -->
+                    </div>
                   </div>
+
+                  <div id="dropdown-container"></div>
                 </div>
               </div>
             </div>

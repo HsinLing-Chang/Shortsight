@@ -1,5 +1,9 @@
+import io
+from PIL import Image
 import boto3
 import os
+from fastapi.responses import StreamingResponse
+from starlette.background import BackgroundTask
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -39,6 +43,49 @@ class S3_handler():
             Bucket=self.bucket,
             Key=file_path,
         )
+
+    def buffer_close(self, buffer):
+        try:
+            buffer.close()
+        except:
+            pass
+
+    async def download_qrcode(self, uuid, format):
+
+        format = format.lower()
+        key = f"qrcodes/{uuid}.PNG"
+        try:
+            s3_obj = self.client.get_object(Bucket=self.bucket, Key=key)
+            image_bytes = s3_obj["Body"].read()
+        except Exception as e:
+            raise Exception(f"無法從 S3 取得圖片: {e}")
+        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        output = io.BytesIO()
+        if format == "jpg":
+            format = "jpeg"
+        image.save(output, format=format.upper())
+        output.seek(0)
+
+        return StreamingResponse(
+            output,
+            media_type=f"image/{format}",
+            headers={
+                "Content-Disposition": f'attachment; filename="{uuid}.{format}"'
+            },
+            background=BackgroundTask(self.buffer_close, output)
+        )
+
+        # url = self.client.generate_presigned_url(
+        #     ClientMethod='get_object',
+        #     Params={
+        #         'Bucket':  self.bucket,
+        #         'Key': key,
+        #         'ResponseContentDisposition': f'attachment; filename="{uuid}.PNG"'
+        #     },
+        #     ExpiresIn=300  # 有效時間（秒）：5 分鐘
+        # )
+        # print(url)
+        # return url
 
 
 aws_s3 = S3_handler()

@@ -45,15 +45,16 @@ class CreateLink {
 
   getPayload() {
     return {
-      title: this.title.value.trim(),
+      title:
+        this.title.value.trim() === "" ? "Untitled" : this.title.value.trim(),
       short_key: this.customUrl.value.trim() || undefined, //後端無此欄位
       target_url: this.destination.value.trim(),
       utm_params: {
         utm_source: this.sourceInput.value.trim() || null,
         utm_medium: this.mediumInput.value.trim() || null,
         utm_campaign: this.campaignInput.value.trim() || null,
-        utm_term: this.contentInput.value.trim() || null,
-        utm_content: this.termInput.value.trim() || null,
+        // utm_term: this.contentInput.value.trim() || null,
+        // utm_content: this.termInput.value.trim() || null,
       },
     };
   }
@@ -68,6 +69,7 @@ class CreateLink {
       if (!this.validate()) throw Error("Form cannot be empty.");
       this.loader.classList.add("visible");
       const payload = this.getPayload();
+      // console.log(payload.title);
       // const token = localStorage.getItem("access_token");
       const response = await fetch("/api/links/shorten", {
         method: "POST",

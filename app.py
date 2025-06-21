@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse,  FileResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from routers import auth, user, redirect_url, links, qr_codes, redirect_qr_code, event_log
+from routers import auth, user, redirect_url, links, qr_codes, redirect_qr_code, event_log, utm_params
 app = FastAPI()
 app.include_router(auth.router)
 app.include_router(user.router)
@@ -11,8 +11,9 @@ app.include_router(links.router)
 app.include_router(redirect_url.router)
 app.include_router(redirect_qr_code.router)
 app.include_router(event_log.router)
-
 app.include_router(qr_codes.router)
+app.include_router(utm_params.router)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
@@ -75,12 +76,32 @@ async def index(request: Request, id: int):
 
 @app.get("/analytics", include_in_schema=False)
 async def index(request: Request):
-    return FileResponse("./static/html/analytics.html", media_type="text/html")
+    return FileResponse("./static/html/analyticsAllLinks.html", media_type="text/html")
+
+
+@app.get("/analytics/trend", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/trending.html", media_type="text/html")
+
+
+@app.get("/analytics/geoplot", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/geoPlot.html", media_type="text/html")
 
 
 @app.get("/campaign", include_in_schema=False)
 async def index(request: Request):
     return FileResponse("./static/html/campaign.html", media_type="text/html")
+
+
+@app.get("/campaign/source", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/sourceMedium.html", media_type="text/html")
+
+
+@app.get("/campaign/non-campaign", include_in_schema=False)
+async def index(request: Request):
+    return FileResponse("./static/html/nonCampaignTraffic.html", media_type="text/html")
 
 
 @app.exception_handler(HTTPException)

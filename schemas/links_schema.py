@@ -7,7 +7,7 @@ import re
 
 
 class URLForm(BaseModel):
-    title: str
+    title: Optional[str] = "Untitled"
     short_key: Optional[str] = None
     target_url:  HttpUrl
     utm_params: Optional[UTM_form] = None

@@ -1,0 +1,80 @@
+.line {
+  border-bottom: 1px solid #d3d3d3;
+  margin: 1rem 0;
+}
+.analytics-nav {
+  display: flex;
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  overflow: hidden;
+  width: fit-content;
+}
+a {
+  text-decoration: none;
+}
+.analytics-nav :not(:first-child) {
+  border-left: 1px solid #d3d3d3;
+}
+.analytics-nav div {
+  padding: 0.5rem 1rem;
+  color: #1f2937;
+  transition: all 0.2s ease-in;
+  &:hover {
+    cursor: pointer;
+    color: #0284c7;
+    background-color: #e0f2fe;
+  }
+}
+.analytics-nav .active-nav {
+  color: #ffffff;
+  background-color: #0284c7;
+}
+.report-container {
+  display: flex;
+  flex-direction: column;
+}
+
+#trendChart {
+  width: 100%;
+  background-color: #f8f9fc; /* 或 #ffffff */
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 微陰影感 */
+}
+.trend-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+}
+.chart-info {
+  /* width: 60%; */
+  /* margin: 0 auto; */
+  margin: 0 1.5rem;
+  padding: 2rem;
+
+  align-self: flex-start;
+}
+.canvas-container {
+  height: 500px;
+  width: 1000px;
+}
+.top-link-info {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  flex-wrap: wrap;
+  /* justify-content: space-around; */
+  /* align-self: flex-start; */
+}
+.top-link {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+.a-link {
+  color: #4a145b;
+  &:hover {
+    color: #0284c7;
+  }
+}

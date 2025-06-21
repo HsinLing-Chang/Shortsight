@@ -1,0 +1,42 @@
+/* .member-content {
+  display: flex;
+  justify-content: space-around;
+} */
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+.total-info {
+  display: flex;
+  justify-content: space-between;
+}
+.total-info > div {
+  background-color: #fff;
+  padding: 2rem 4rem;
+  border-radius: 10px;
+}
+.pie-true {
+  width: 300px;
+  height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.edit-btn {
+  align-self: end;
+  margin-top: auto;
+}
+.quick-create {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+}
+.label {
+  font-weight: 600;
+}
+
+#link-input {
+  width: 600px;
+  margin-left: 1rem;
+}

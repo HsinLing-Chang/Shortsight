@@ -4,20 +4,38 @@ class CreateChart {
     this.ctx_location = document.querySelector("#location").getContext("2d");
     this.ctx_referrer = document.querySelector("#pie-chart1");
     this.ctx_device = document.querySelector("#pie-chart2");
+    this.chartContainer = document.querySelector(".chart-container");
+    this.newReferrerContainer = document.querySelector("#referrer-container");
+    // this.referrerContainer = document.querySelector(".analytics-container");
     this.getData();
+    this.getReferrer();
+    this.dropDown();
+  }
+  createElement(tag, className = [], textContent = "") {
+    const element = document.createElement(tag);
+    if (typeof className == "string" && className) {
+      element.classList.add(className);
+    } else if (Array.isArray(className)) {
+      element.classList.add(...className);
+    }
+    if (textContent !== null && textContent !== undefined) {
+      element.textContent = textContent;
+    }
+    return element;
   }
   async getData() {
     const uuid = location.pathname.split("/")[2];
-    const response = await fetch(`/api/click/report/${uuid}`, {
+    const response = await fetch(`/api/report/click/${uuid}`, {
       credentials: "include",
     });
     const result = await response.json();
     if (result.ok && result.data.total > 0) {
       // console.log(result);
       // console.log(result.data);
+
       this.drawClickEvents(result.data.clickEvents, result.data.total);
       this.drawLocation(result.data.location);
-      this.drawReferrerPie(result.data.referrer);
+      // this.drawReferrerPie(result.data.referrer);
       this.drawDevice(result.data.device);
     } else {
       const chartContainer = document.querySelector(".chart-container");
@@ -31,6 +49,21 @@ class CreateChart {
       <h3>${result.message || "Oops... No clicks found"} </h3>
     </div>`;
     }
+  }
+  async getReferrer() {
+    const uuid = location.pathname.split("/")[2];
+    const response = await fetch(`/api/report/click/referrer/${uuid}`, {
+      credentials: "include",
+    });
+    const result = await response.json();
+    if (result.ok) {
+      const channels = result.data.channels;
+      // console.log(channels);
+      // this.createReferrerData(channels);
+      this.drawReferrerPie(channels);
+      this.createNewReferrerData(this.newReferrerContainer, channels);
+    }
+    // console.log(result);
   }
   drawClickEvents(rawData, total) {
     const labels = rawData.map((item) => item.day);
@@ -191,22 +224,22 @@ class CreateChart {
     });
   }
   drawReferrerPie(referrerData) {
-    const labels = Object.keys(referrerData);
-    const data = Object.values(referrerData);
+    const labels = referrerData.map((item) => item.channel);
+    const data = referrerData.map((item) => item.total_clicks);
     const chartData = {
       labels: labels,
       datasets: [
         {
           data: data,
           backgroundColor: [
-            "#3B82F6",
-            "#F87171",
-            "#FBBF24",
-            "#34D399",
             "#A78BFA",
             "#60A5FA",
             "#F472B6",
             "#FCD34D",
+
+            "#F87171",
+            "#FBBF24",
+            "#41ba7c",
           ],
           borderWidth: 0,
         },
@@ -216,7 +249,7 @@ class CreateChart {
       plugins: {
         title: {
           display: true,
-          text: "Referrers",
+          text: "Channels",
           font: { size: 22 },
           color: "#233D63",
           position: "top",
@@ -309,6 +342,113 @@ class CreateChart {
       type: "doughnut",
       data: chartData,
       options: options,
+    });
+  }
+  createReferrerData(channels) {
+    const container = document.getElementById("dropdown-container");
+    container.innerHTML = ""; // 清空舊資料
+
+    channels.forEach((channel) => {
+      const channelBox = this.createElement("div", "channel-box");
+
+      const channelToggle = this.createElement(
+        "div",
+        ["toggle", "level-1"],
+        `${channel.channel} (${channel.total_clicks})`
+      );
+      channelBox.appendChild(channelToggle);
+
+      const sourceList = this.createElement("div", "nested");
+
+      if (channel.sources.length > 0) {
+        channel.sources.forEach((source) => {
+          const sourceToggle = this.createElement(
+            "div",
+            ["toggle", "level-2"],
+            `${source.source} (${source.total_clicks})`
+          );
+
+          sourceList.appendChild(sourceToggle);
+
+          const domainList = this.createElement("div", "nested");
+
+          if (source.domains.length > 0) {
+            source.domains.forEach((domain) => {
+              const domainItem = this.createElement(
+                "div",
+                ["level-3"],
+                `${domain.domain} (${domain.clicks})`
+              );
+              domainList.appendChild(domainItem);
+            });
+          }
+
+          sourceList.appendChild(domainList);
+        });
+      }
+
+      channelBox.appendChild(sourceList);
+      container.appendChild(channelBox);
+    });
+  }
+  dropDown() {
+    document.addEventListener("click", function (e) {
+      if (e.target.classList.contains("toggle")) {
+        e.target.classList.toggle("open");
+        const next = e.target.nextElementSibling;
+        if (next && next.classList.contains("nested")) {
+          next.style.display =
+            next.style.display === "block" ? "none" : "block";
+        }
+      }
+    });
+  }
+  createNewReferrerData(container, channels) {
+    channels.forEach((channelObj) => {
+      const title = `${channelObj.channel} (${channelObj.total_clicks})`;
+
+      const channelContainer = this.createElement("div", "channel-container");
+      channelContainer.style.marginBottom = "12px";
+
+      const channelName = this.createElement("div", ["channel-name"], title);
+
+      const gridContainer = this.createElement("div", "grid-container");
+      gridContainer.style.display = "none";
+
+      if (channelObj.sources && channelObj.sources.length > 0) {
+        const headers = ["Channel", "Source", "Medium", "Domain", "Click"];
+        headers.forEach((title) =>
+          gridContainer.appendChild(this.createElement("div", "g-title", title))
+        );
+        channelObj.sources.forEach((src) => {
+          src.domains.forEach((domainObj) => {
+            gridContainer.appendChild(
+              this.createElement("div", [], channelObj.channel)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], src.source)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], src.medium)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], domainObj.domain)
+            );
+            gridContainer.appendChild(
+              this.createElement("div", [], domainObj.clicks)
+            );
+          });
+        });
+      }
+
+      channelName.addEventListener("click", () => {
+        gridContainer.style.display =
+          gridContainer.style.display === "none" ? "grid" : "none";
+      });
+
+      channelContainer.appendChild(channelName);
+      channelContainer.appendChild(gridContainer);
+      container.appendChild(channelContainer);
     });
   }
 }

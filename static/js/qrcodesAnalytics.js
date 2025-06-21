@@ -1,5 +1,6 @@
 class QrcodesAnalytics {
   constructor() {
+    this.uuid = null;
     if (!window.location.pathname.startsWith("/qrcodes/")) {
       return;
     }
@@ -29,6 +30,8 @@ class QrcodesAnalytics {
     const qrocdeInfo = await response.json();
     // console.log(qrocdeInfo);
     if (qrocdeInfo.ok) {
+      // console.log(qrocdeInfo);
+      this.uuid = qrocdeInfo.data.uuid;
       this.title.textContent = qrocdeInfo.data.title;
       this.destination.textContent = qrocdeInfo.data.target_url;
       this.destination.href = qrocdeInfo.data.target_url;
@@ -39,7 +42,9 @@ class QrcodesAnalytics {
       // this.download.download = `qrcodes.PNG`;
       // this.download.click();
       this.createdAt.textContent = qrocdeInfo.data.qr_code.created_at;
-      const shortKey = `https://s.ppluchuli.com/s/${qrocdeInfo.data.short_key}`;
+      const shortKey = `https://s.ppluchuli.com/s/${
+        qrocdeInfo.data.shortKey || qrocdeInfo.data.uuid
+      }`;
       this.shortUrl.textContent = shortKey;
       this.shortUrl.href = shortKey;
       // this.shortUrl.target = "_blank";
@@ -59,12 +64,33 @@ class QrcodesAnalytics {
   getShortLink(uuid) {
     location.href = `/links/${uuid}`;
   }
-
+  async downloadQRcode(uuid, imgFormat) {
+    const response = await fetch(`/api/qrcode/${uuid}/${imgFormat}`, {
+      credentials: "include",
+    });
+    // const result = await response.json();
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${uuid}.${imgFormat}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url); // 清理
+    // if (result.ok) {
+    //   const link = document.createElement("a");
+    //   link.href = result.data;
+    //   link.download = "my_qrcode.png";
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    // }
+  }
   addClickEvent(btn) {
     const more = btn.querySelector(".more");
     if (!more) return;
 
-    // 點擊按鈕時
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
 
@@ -72,7 +98,16 @@ class QrcodesAnalytics {
       document.querySelectorAll(".more.display").forEach((el) => {
         if (el !== more) el.classList.remove("display");
       });
-
+      const jpegBtn = document.querySelector(".jpeg");
+      const pngBtn = document.querySelector(".png");
+      jpegBtn.addEventListener("click", () => {
+        more.classList.remove("display");
+        this.downloadQRcode(this.uuid, "jpeg");
+      });
+      pngBtn.addEventListener("click", () => {
+        more.classList.remove("display");
+        this.downloadQRcode(this.uuid, "png");
+      });
       // 切換自己
       more.classList.toggle("display");
     });

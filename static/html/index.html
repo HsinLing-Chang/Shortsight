@@ -62,8 +62,58 @@
             <div class="page">
               <div class="page-real">
                 <!-- 頁面插入位置 -->
-                <h1>HOME</h1>
-                <a href="/qr/BPk7VP">測試</a>
+                <div>
+                  <h1 class="mg-b1">HOME</h1>
+                </div>
+
+                <div class="total-info mg-b2">
+                  <div class="card user-info card-shadow">
+                    <h3 class="mg-b2">👤 User Information</h3>
+                    <p class="mg-b1 font-w500">
+                      Username：<span class="user-name"></span>
+                    </p>
+                    <p class="mg-b1 font-w500">
+                      Email：<span class="user-email"></span>
+                    </p>
+                    <button class="edit-btn btn">Edit</button>
+                  </div>
+                  <div class="stats card-shadow">
+                    <h3 class="mg-b2">📊 Clicks and Scans Overview</h3>
+                    <p class="mg-b2 total-interactions font-w500"></p>
+                    <p class="mg-b2 mg-b05 font-w500">
+                      Total clicks：<span class="total-clicks"></span>
+                    </p>
+                    <p class="mg-b2 mg-b05 font-w500">
+                      Total scans：<span class="total-scans"></span>
+                    </p>
+                  </div>
+                  <div class="card-shadow ratio-pie">
+                    <canvas
+                      id="trafficPieChart"
+                      width="250"
+                      height="250"
+                    ></canvas>
+                  </div>
+                </div>
+                <div class="quick-create card-shadow">
+                  <h2 class="mg-b1">Quick create</h2>
+                  <div class="font-ml mg-b1">Domain: s.ppluchuli.com</div>
+                  <div class="mg-b1">
+                    <label class="label font-ml" for="link-input"
+                      >Enter your destination URL:
+                    </label>
+                  </div>
+
+                  <input
+                    id="link-input"
+                    type="text"
+                    class="hp-40 b-rad-5 font-rg"
+                    placeholder="https://example.com/my-long-url"
+                  />
+                  <button class="mg-l1 btn font-rg create-btn">
+                    Create your short link
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -72,5 +122,7 @@
     </div>
 
     <script defer src="/static/js/navbar.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="/static/js/index.js"></script>
   </body>
 </html>

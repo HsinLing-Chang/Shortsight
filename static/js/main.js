@@ -9,9 +9,9 @@ import QrcodesAnalytics from "./qrcodesAnalytics.js";
 import CreateQrcodeForm from "./createQrcodeForm.js";
 window.addEventListener("DOMContentLoaded", () => {
   const path = window.location.pathname;
-  console.log(path);
-  const location = path.split("/")[1];
-  console.log(location);
+  // console.log(path);
+  // const location = path.split("/")[1];
+  // console.log(location);
   new SideBarController({
     expandClass: "expend",
     iconOnlyClass: "icon-only",
