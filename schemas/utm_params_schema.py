@@ -17,12 +17,12 @@ class UTM_form(BaseModel):
 
     def to_model(self):
         if not self.is_empty():
-            print("非空值")
+            # print("非空值")
             data = self.model_dump()
-            print(f"data {data}")
-            if data.get("utm_source") in (None, "") and data.get("utm_medium") not in (None, ""):
+            # print(f"data {data}")
+            if data.get("utm_source") in (None, ""):
                 data["utm_source"] = "(none)"
-            if data.get("utm_medium") in (None, "") and data.get("utm_source") not in (None, ""):
+            if data.get("utm_medium") in (None, ""):
                 data["utm_medium"] = "(none)"
             return UTMParams(**data)
         return None

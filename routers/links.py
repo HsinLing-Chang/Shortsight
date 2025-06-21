@@ -7,6 +7,7 @@ from utils.dependencies import get_db
 from utils.security import JWTtoken
 from database.model import UrlMapping, QRCode, UTMParams
 from schemas.links_schema import URLForm, LinkResponse, LinkListResponse
+from schemas.utm_params_schema import UTM_form
 from typing import Annotated
 from utils.uuid_generator import uuid_generator
 
@@ -80,6 +81,17 @@ async def get_link(uuid: str, db: Annotated[Session, Depends(get_db)], current_u
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+
+
+@router.post("/utm/{id}")
+async def create_utm(id: int, utm_form: UTM_form, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
+    utm_data = utm_form.to_model()
+    # print(utm_data.utm_campaign, utm_data.utm_medium, utm_data.utm_source)
+    new_utm_params = UTMParams(mapping_id=id, utm_campaign=utm_data.utm_campaign,
+                               utm_medium=utm_data.utm_medium,  utm_source=utm_data.utm_source)
+    db.add(new_utm_params)
+    db.commit()
+    return JSONResponse(content={"ok": True})
 
 
 @router.put("/links/{uuid}")

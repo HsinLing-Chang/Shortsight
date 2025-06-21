@@ -281,8 +281,12 @@
 }
 
 /* UTM section */
-.utm-container {
+.utm-container-false {
   /* background-color: violet; */
+  padding: 1rem 0;
+  display: none;
+}
+.utm-container-true {
   padding: 1rem 0;
   display: none;
 }
@@ -297,4 +301,18 @@
 .line-utm {
   border-bottom: 1px solid #d3d3d3;
   margin: 0rem 0 1rem;
+}
+.param-text {
+  width: 200px;
+  background-color: rgb(220, 220, 220);
+  font-size: 1.1rem;
+  background-color: rgb(220, 220, 220);
+  align-items: center;
+  border: 1px solid #666666;
+}
+.utm-params {
+  align-items: center;
+}
+.display {
+  display: block;
 }
