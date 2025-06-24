@@ -30,6 +30,8 @@ jobs:
         push: true
         pull: false
         tags: hsinling/shortsight:latest
+        build-args: | 
+          MAXMIND_LICENSE_KEY=${{ secrets.MAXMIND_LICENSE_KEY }}
 
     - name: SSH into EC2 and run deploy.sh
       uses: appleboy/ssh-action@v1.0.0
