@@ -1,5 +1,4 @@
 fastapi
-pydantic
 pydantic[email]
 uvicorn
 sqlalchemy
@@ -15,5 +14,4 @@ qrcode[pil]
 hashids
 geoip2
 user-agents
-pillow boto3
-# device-detector
+pillow

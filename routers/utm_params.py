@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request, Query
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import APIRouter, Depends,  Query
+from fastapi.responses import JSONResponse
 from utils.dependencies import get_db
-from sqlalchemy import select, func, case, distinct, cast, Float
-from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import literal_column, or_
+from sqlalchemy import select, func, case, distinct
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import or_
 from typing import Annotated, Optional
 from utils.security import JWTtoken
 from database.model import UrlMapping, EventLog, UTMParams, EventTrafficSource
-from datetime import datetime, timedelta, date
+from datetime import timedelta, date
 from repositories.utm_params import get_source_medium, get_canpaign_source_medium, get_all_source_interactions, get_campaign_source_interactions, get_all_campaign_data, get_campaign_with_type
 router = APIRouter(prefix="/api", tags=["Utm"])
 

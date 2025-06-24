@@ -1,6 +1,6 @@
 import os
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker, relationship
-from sqlalchemy import create_engine, String, Text, func, BIGINT, CHAR, TIMESTAMP, VARCHAR, ForeignKey, Enum, INTEGER
+from sqlalchemy import create_engine, String, Text, func, BIGINT, CHAR, TIMESTAMP, VARCHAR, ForeignKey, Enum, INTEGER, Index
 from dotenv import load_dotenv
 from datetime import date, datetime
 # import logging
@@ -71,13 +71,14 @@ class UTMParams(Base):
     utm_medium: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
     utm_campaign: Mapped[str | None] = mapped_column(
         VARCHAR(50), nullable=True)
-    # 關鍵字
-    utm_term: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
-    # A/B Test
-    utm_content: Mapped[str | None] = mapped_column(VARCHAR(50), nullable=True)
+
     # relationship
     mapping: Mapped["UrlMapping"] = relationship(
         "UrlMapping", back_populates="utm")
+
+    __table_args__ = (
+        Index("idx_source_medium",  "utm_source", "utm_medium"),
+    )
 
 
 class QRCode(Base):
@@ -141,7 +142,7 @@ class EventTrafficSource(Base):
         VARCHAR(50), nullable=True, comment="utm_medium 或分類結果，例如 organic/referral")
     campaign: Mapped[str | None] = mapped_column(VARCHAR(100), nullable=True)
     channel: Mapped[str | None] = mapped_column(VARCHAR(
-        50), nullable=True, comment="高階 GA-style channel 分類，例如 Social/Search/Direct")
+        50), nullable=True, comment="channel 分類，例如 Social/Search/Direct")
     created_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True), server_default=func.current_timestamp(), nullable=False, index=True)
     mapping: Mapped["UrlMapping"] = relationship(

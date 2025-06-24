@@ -6,7 +6,7 @@ from utils.dependencies import get_db
 from database.model import User
 from utils.security import JWTtoken, Hash
 from schemas.user_schema import UserUpdateForm
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", tags=["user"])
 
 
 @router.get("/user")

@@ -36,8 +36,6 @@ def get_client_referer(request: Request, utm_source, utm_medium, utm_campaign):
     if referer:
         parsed = urlparse(referer)
         domain = parsed.netloc.lower()
-        if domain.startswith("www."):
-            domain = domain[4:]
 
     parsed_source = utm_source or None
     parsed_medium = utm_medium or None

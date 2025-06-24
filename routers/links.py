@@ -11,7 +11,7 @@ from schemas.utm_params_schema import UTM_form
 from typing import Annotated
 from utils.uuid_generator import uuid_generator
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", tags=["links"])
 
 
 @router.post("/links/shorten")

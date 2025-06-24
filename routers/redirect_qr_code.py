@@ -9,7 +9,7 @@ from Geolocation.geolocation import lookup_ip
 from utils.client_info import get_client_ip, get_client_referer, get_client_device
 from repositories.ip import save_geo_to_db
 import uuid
-router = APIRouter(prefix="/qr")
+router = APIRouter(prefix="/qr", tags=["redirect_qrcodes"])
 
 
 @router.get("/{short_code}")

@@ -1,8 +1,8 @@
 from schemas.utm_params_schema import UTM_form
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, StringConstraints, HttpUrl, field_validator
-from database.model import UrlMapping, QRCode, UTMParams
+from pydantic import BaseModel,  HttpUrl, field_validator
+from database.model import UrlMapping, QRCode
 from utils.dependencies import get_db
 from utils.security import JWTtoken
 from utils.S3 import aws_s3
@@ -17,7 +17,7 @@ import re
 import io
 from utils.S3 import aws_s3
 from pydantic import ConfigDict,  field_serializer, RootModel
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", tags=['qrcodes'])
 
 
 class QrcodeForm(BaseModel):
