@@ -16,7 +16,7 @@ RUN mkdir -p /data && \
     curl -L "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" \
     -o /tmp/geo.tar.gz && \
     tar -xzf /tmp/geo.tar.gz -C /data --strip-components=1 --wildcards '*/GeoLite2-City.mmdb' && \
-    rm /tmp/geo.tar.gz
+    rm /tmp/geo.tar.gz \
     unset MAXMIND_LICENSE_KEY
 
 EXPOSE 8000
