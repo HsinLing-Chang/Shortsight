@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func, case, distinct,  and_
-from database.model import UrlMapping, UTMParams, EventTrafficSource
+from database.model import UrlMapping, UTMParams, EventLog
 from datetime import timedelta
 
 
@@ -87,22 +87,22 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
     """ALL scanS or clickS source/medium"""
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
     ).subquery()
 
     conditions = [
-        EventTrafficSource.visitor_id.isnot(None),
-        EventTrafficSource.event_type == event_type,
+        EventLog.visitor_id.isnot(None),
+        EventLog.event_type == event_type,
         UrlMapping.user_id == user_id,
     ]
     if start_date:
-        conditions.append(EventTrafficSource.created_at >= start_date)
+        conditions.append(EventLog.created_at >= start_date)
     if end_date:
-        conditions.append(EventTrafficSource.created_at <
+        conditions.append(EventLog.created_at <
                           end_date + timedelta(days=1))
 
     end_adj = end_date + timedelta(days=1) if end_date else None
@@ -120,26 +120,26 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
         select(
             UTMParams.utm_source.label("source"),
             UTMParams.utm_medium.label("medium"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
                 distinct(
-                    case((new_user_cond, EventTrafficSource.visitor_id))
+                    case((new_user_cond, EventLog.visitor_id))
                 )
             ).label("new_users")
         )
         .select_from(UTMParams)
         .join(UrlMapping, UTMParams.mapping_id == UrlMapping.id)
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
-                EventTrafficSource.event_type == event_type if event_type else True,
+                EventLog.mapping_id == UrlMapping.id,
+                EventLog.event_type == event_type if event_type else True,
                 *conditions  # created_at 篩選條件
             )
         )
         .outerjoin(
             first_seen_visitors,
-            EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id
+            EventLog.visitor_id == first_seen_visitors.c.visitor_id
         )
         .where(
             UrlMapping.user_id == user_id,
@@ -148,7 +148,7 @@ async def get_source_medium(db: Session, user_id, start_date, end_date, event_ty
             UTMParams.utm_campaign.is_not(None),
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
     result = db.execute(stmt).mappings().all()
     return summarize_utm_user_stats(result)
@@ -160,20 +160,20 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
 
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
     ).subquery()
 
     event_conditions = []
     if event_type:
-        event_conditions.append(EventTrafficSource.event_type == event_type)
+        event_conditions.append(EventLog.event_type == event_type)
     if start_date:
-        event_conditions.append(EventTrafficSource.created_at >= start_date)
+        event_conditions.append(EventLog.created_at >= start_date)
     if end_date:
-        event_conditions.append(EventTrafficSource.created_at < end_date)
+        event_conditions.append(EventLog.created_at < end_date)
 
     if start_date and end_date:
         new_user_cond = (first_seen_visitors.c.first_seen >= start_date) & (
@@ -189,29 +189,29 @@ async def get_canpaign_source_medium(campaign, db, user_id, start_date, end_date
         select(
             UTMParams.utm_source.label("source"),
             UTMParams.utm_medium.label("medium"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
-                distinct(case((new_user_cond, EventTrafficSource.visitor_id)))
+                distinct(case((new_user_cond, EventLog.visitor_id)))
             ).label("new_users")
         )
         .join(UrlMapping, UTMParams.mapping_id == UrlMapping.id)
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
+                EventLog.mapping_id == UrlMapping.id,
                 *event_conditions
             )
         )
         .outerjoin(
             first_seen_visitors,
-            EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id
+            EventLog.visitor_id == first_seen_visitors.c.visitor_id
         )
         .where(
             UrlMapping.user_id == user_id,
             UTMParams.utm_campaign == campaign
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
 
     result = db.execute(stmt).mappings().all()
@@ -226,17 +226,17 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
 
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .group_by(EventTrafficSource.visitor_id)
+        .group_by(EventLog.visitor_id)
     ).subquery()
 
-    event_filters = [EventTrafficSource.event_type.in_(["click", "scan"])]
+    event_filters = [EventLog.event_type.in_(["click", "scan"])]
     if start_date:
-        event_filters.append(EventTrafficSource.created_at >= start_date)
+        event_filters.append(EventLog.created_at >= start_date)
     if end_adj:
-        event_filters.append(EventTrafficSource.created_at < end_adj)
+        event_filters.append(EventLog.created_at < end_adj)
 
     if start_date and end_adj:
         new_user_cond = (first_seen_visitors.c.first_seen >= start_date) & (
@@ -252,24 +252,24 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
         select(
             UTMParams.utm_source.label("source"),
             UTMParams.utm_medium.label("medium"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
                 distinct(
-                    case((new_user_cond, EventTrafficSource.visitor_id))
+                    case((new_user_cond, EventLog.visitor_id))
                 )
             ).label("new_users")
         )
         .join(UrlMapping, UTMParams.mapping_id == UrlMapping.id)
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
+                EventLog.mapping_id == UrlMapping.id,
                 *event_filters
             )
         )
         .outerjoin(
             first_seen_visitors,
-            EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id
+            EventLog.visitor_id == first_seen_visitors.c.visitor_id
         )
         .where(
             UrlMapping.user_id == user_id,
@@ -278,7 +278,7 @@ async def get_all_source_interactions(db, start_date, end_date, user_id):
             UTMParams.utm_campaign.is_not(None),
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
 
     result = db.execute(stmt).mappings().all()
@@ -293,18 +293,18 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
 
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
     ).subquery()
 
-    event_filters = [EventTrafficSource.event_type.in_(["click", "scan"])]
+    event_filters = [EventLog.event_type.in_(["click", "scan"])]
     if start_date:
-        event_filters.append(EventTrafficSource.created_at >= start_date)
+        event_filters.append(EventLog.created_at >= start_date)
     if end_adj:
-        event_filters.append(EventTrafficSource.created_at < end_adj)
+        event_filters.append(EventLog.created_at < end_adj)
 
     if start_date and end_adj:
         new_user_cond = (first_seen_visitors.c.first_seen >= start_date) & (
@@ -320,22 +320,22 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
         select(
             UTMParams.utm_source.label("source"),
             UTMParams.utm_medium.label("medium"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
-                distinct(case((new_user_cond, EventTrafficSource.visitor_id)))
+                distinct(case((new_user_cond, EventLog.visitor_id)))
             ).label("new_users")
         )
         .join(UrlMapping, UTMParams.mapping_id == UrlMapping.id)
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
+                EventLog.mapping_id == UrlMapping.id,
                 *event_filters
             )
         )
         .outerjoin(
             first_seen_visitors,
-            EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id
+            EventLog.visitor_id == first_seen_visitors.c.visitor_id
         )
         .where(
             UrlMapping.user_id == user_id,
@@ -344,7 +344,7 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
             UTMParams.utm_medium.isnot(None)
         )
         .group_by(UTMParams.utm_source, UTMParams.utm_medium)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
     result = db.execute(stmt).mappings().all()
     return summarize_utm_user_stats(result)
@@ -353,11 +353,11 @@ async def get_campaign_source_interactions(db, campaign, start_date, end_date, u
 async def get_all_campaign_data(db, user_id, start_date, end_date):
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
         .subquery()
     )
 
@@ -376,18 +376,18 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
 
     traffic_filters = []
     if start_date:
-        traffic_filters.append(EventTrafficSource.created_at >= start_date)
+        traffic_filters.append(EventLog.created_at >= start_date)
     if end_date:
         traffic_filters.append(
-            EventTrafficSource.created_at < end_date + timedelta(days=1))
+            EventLog.created_at < end_date + timedelta(days=1))
 
     stmt = (
         select(
             UTMParams.utm_campaign.label("campaign"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
                 distinct(
-                    case((new_user_cond, EventTrafficSource.visitor_id))
+                    case((new_user_cond, EventLog.visitor_id))
                 )
             ).label("new_users")
         )
@@ -397,23 +397,23 @@ async def get_all_campaign_data(db, user_id, start_date, end_date):
             UrlMapping.id == UTMParams.mapping_id
         )
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
-                EventTrafficSource.event_type.in_(["click", "scan"]),
+                EventLog.mapping_id == UrlMapping.id,
+                EventLog.event_type.in_(["click", "scan"]),
                 *traffic_filters
             )
         )
         .outerjoin(
             first_seen_visitors,
-            EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id
+            EventLog.visitor_id == first_seen_visitors.c.visitor_id
         )
         .where(
             UrlMapping.user_id == user_id,
             UTMParams.utm_campaign.isnot(None)
         )
         .group_by(UTMParams.utm_campaign)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
 
     result = db.execute(stmt).mappings().all()
@@ -424,11 +424,11 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
 
     first_seen_visitors = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
         .subquery()
     )
 
@@ -445,37 +445,37 @@ async def get_campaign_with_type(db, user_id, event_type, start_date, end_date):
 
     traffic_conditions = []
     if start_date:
-        traffic_conditions.append(EventTrafficSource.created_at >= start_date)
+        traffic_conditions.append(EventLog.created_at >= start_date)
     if end_date:
         traffic_conditions.append(
-            EventTrafficSource.created_at < end_date + timedelta(days=1))
+            EventLog.created_at < end_date + timedelta(days=1))
 
     stmt = (
         select(
             UTMParams.utm_campaign.label("campaign"),
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
                 distinct(
-                    case((new_user_cond, EventTrafficSource.visitor_id))
+                    case((new_user_cond, EventLog.visitor_id))
                 )
             ).label("new_users")
         )
         .join(UrlMapping, UTMParams.mapping_id == UrlMapping.id)
         .outerjoin(
-            EventTrafficSource,
+            EventLog,
             and_(
-                EventTrafficSource.mapping_id == UrlMapping.id,
-                EventTrafficSource.event_type == event_type if event_type else True,
+                EventLog.mapping_id == UrlMapping.id,
+                EventLog.event_type == event_type if event_type else True,
                 *traffic_conditions
             )
         )
-        .outerjoin(first_seen_visitors, EventTrafficSource.visitor_id == first_seen_visitors.c.visitor_id)
+        .outerjoin(first_seen_visitors, EventLog.visitor_id == first_seen_visitors.c.visitor_id)
         .where(
             UrlMapping.user_id == user_id,
             UTMParams.utm_campaign.isnot(None)
         )
         .group_by(UTMParams.utm_campaign)
-        .order_by(func.count(EventTrafficSource.id).desc())
+        .order_by(func.count(EventLog.id).desc())
     )
 
     result = db.execute(stmt).mappings().all()

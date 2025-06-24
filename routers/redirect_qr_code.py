@@ -4,7 +4,7 @@ from utils.dependencies import get_db
 from sqlalchemy import select, or_
 from sqlalchemy.orm import Session
 from typing import Annotated
-from database.model import UrlMapping, EventLog, UTMParams, EventTrafficSource
+from database.model import UrlMapping, EventLog, UTMParams
 from Geolocation.geolocation import lookup_ip
 from utils.client_info import get_client_ip, get_client_referer, get_client_device
 from repositories.ip import save_geo_to_db
@@ -61,18 +61,14 @@ async def redirect_qr_code(short_code: str, request: Request, db: Annotated[Sess
                          device_type=device_result.get("device_type"),
                          device_browser=device_result.get("device_browser"),
                          device_os=device_result.get("device_os"),
-                         app_source=device_result.get("app_source"))
-    new_eventTraffic = EventTrafficSource(
-        mapping_id=url_id,
-        domain=traffic_info["domain"],
-        source=traffic_info["source"],
-        medium=traffic_info["medium"],
-        campaign=traffic_info["campaign"],
-        channel=traffic_info["channel"],
-        event_type="scan",
-        visitor_id=visitor_id
-    )
-    db.add_all([new_Event, new_eventTraffic])
+                         app_source=device_result.get("app_source"),
+                         domain=traffic_info["domain"],
+                         source=traffic_info["source"],
+                         medium=traffic_info["medium"],
+                         campaign=traffic_info["campaign"],
+                         channel=traffic_info["channel"],
+                         )
+    db.add(new_Event)
     db.commit()
 
     return response

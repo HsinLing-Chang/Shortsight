@@ -8,8 +8,6 @@ from datetime import datetime, timedelta, timezone, date,  time
 def get_link_performance(db, user_id):
     eventlog_join = and_(
         UrlMapping.id == EventLog.mapping_id,
-        EventLog.device_type != "Bot",
-        EventLog.app_source != "Bot"
     )
 
     stmt = (
@@ -104,8 +102,8 @@ def get_all_interaction_counts(db, user_id, start_date, end_date):
 
         )
         .join(UrlMapping, EventLog.mapping_id == UrlMapping.id)
-        .where(UrlMapping.user_id == user_id, EventLog.created_at >= start_datetime, EventLog.created_at <= end_datetime,            EventLog.device_type != "Bot",
-               EventLog.app_source != "Bot")
+        .where(UrlMapping.user_id == user_id, EventLog.created_at >= start_datetime, EventLog.created_at <= end_datetime
+               )
         .group_by(func.date(EventLog.created_at))
         .order_by("day")
     )
@@ -164,8 +162,6 @@ def get_top_info(db, max_day, user_id):
         .where(
             UrlMapping.user_id == user_id,
             func.date(EventLog.created_at) == max_day,
-            EventLog.device_type != "Bot",
-            EventLog.app_source != "Bot"
         )
         .group_by(UrlMapping, UTMParams.utm_campaign)
         .order_by(func.count(EventLog.id).desc())

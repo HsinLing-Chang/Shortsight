@@ -7,10 +7,10 @@ from repositories.link_statistics import get_click_location, get_cliek_event, ge
 from repositories.qrcode_statistics import get_scan_event, get_scan_location, get_device_browser, get_device_os
 from repositories.analytics_statistics import get_link_performance, get_all_interaction_counts, get_clicks_and_scans_ratio
 from typing import Annotated, Optional
-from datetime import datetime, timedelta, timezone, date, time
+from datetime import datetime, timedelta, timezone, date
 from database.catch import redis_handler
 import json
-from database.model import UrlMapping, EventLog, IpLocation, QRCode, UTMParams, EventTrafficSource
+from database.model import UrlMapping, EventLog, IpLocation
 from sqlalchemy import select, func, case
 router = APIRouter(prefix="/api", tags=["report"])
 
@@ -34,9 +34,7 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
             "total": total,
             "clickEvents": click_events,
             "location": location,
-            # "referrer": referrer,
             "device": device,
-            # "referrer_result": referrer_result
         }
         # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
@@ -58,19 +56,19 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
 
     # 抓出該網址所有 click 的來源資料
     stmt = (
-        select(EventTrafficSource.channel,
-               EventTrafficSource.source,
-               EventTrafficSource.medium,
-               EventTrafficSource.domain,
+        select(EventLog.channel,
+               EventLog.source,
+               EventLog.medium,
+               EventLog.domain,
                func.count().label("clicks"))
         .where(
-            EventTrafficSource.event_type == "click",
-            EventTrafficSource.mapping_id == mapping_id
+            EventLog.event_type == "click",
+            EventLog.mapping_id == mapping_id
         ).group_by(
-            EventTrafficSource.channel,
-            EventTrafficSource.source,
-            EventTrafficSource.medium,
-            EventTrafficSource.domain
+            EventLog.channel,
+            EventLog.source,
+            EventLog.medium,
+            EventLog.domain
         )
     )
     result = db.execute(stmt).mappings().all()
@@ -82,11 +80,11 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
 @router.get("/report/scan/{id}")
 async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
-    cache_key = f"click_report:{current_user.id}:{id}"
-    redis = await redis_handler.get_redis_client()
-    cached = await redis.get(cache_key)
-    if cached:
-        return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
+    # cache_key = f"click_report:{current_user.id}:{id}"
+    # redis = await redis_handler.get_redis_client()
+    # cached = await redis.get(cache_key)
+    # if cached:
+    #     return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
 
     try:
 
@@ -101,7 +99,7 @@ async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current
             "deviceBrowser": device_browser,
             "deviceOS": device_os
         }
-        await redis.set(cache_key, json.dumps(data), ex=30)
+        # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
