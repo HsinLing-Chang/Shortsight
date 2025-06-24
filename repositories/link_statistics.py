@@ -18,8 +18,6 @@ async def get_click_location(db, uuid, user_id,  one_month_ago, limit=5):
                 UrlMapping.user_id == user_id,
                 EventLog.event_type == "click",
                 EventLog.created_at >= one_month_ago,
-                EventLog.device_type != "Bot",
-                EventLog.app_source != "Bot",
             )
             .group_by(IpLocation.country)
             .order_by(desc("clicks"))
@@ -46,8 +44,6 @@ async def get_cliek_event(db, uuid, user_id, one_month_ago):
                 UrlMapping.user_id == user_id,
                 EventLog.event_type == "click",
                 EventLog.created_at >= one_month_ago,
-                EventLog.device_type != "Bot",
-                EventLog.app_source != "Bot",
             )
             .group_by(func.date(EventLog.created_at))
             .order_by(func.date(EventLog.created_at))
@@ -76,8 +72,6 @@ async def get_referrer(db, uuid, user_id, one_month_ago):
             UrlMapping.user_id == user_id,
             EventLog.created_at >= one_month_ago,
             EventLog.event_type == "click",
-            EventLog.device_type != "Bot",
-            EventLog.app_source != "Bot"
         )
             .group_by(EventLog.referer)
         )
@@ -102,8 +96,6 @@ async def get_device(db, uuid, user_id, one_month_ago):
             UrlMapping.user_id == user_id,
             EventLog.created_at >= one_month_ago,
             EventLog.event_type == "click",
-            EventLog.device_type != "Bot",
-            EventLog.app_source != "Bot"
         ).group_by(EventLog.device_type)
         )
         result = db.execute(stmt).all()
@@ -167,50 +159,6 @@ async def get_device(db, uuid, user_id, one_month_ago):
 #     return final_data
 
 def summary_referrer(rows):
-    # CHANNELS = ["Direct", "Organic Search",
-    #             "Organic Social", "Organic Video", "Referral"]
-
-    # # 初始結果容器
-    # channel_map = {
-    #     ch: {"channel": ch, "total_clicks": 0, "sources": []}
-    #     for ch in CHANNELS
-    # }
-    # source_lookup = {ch: {} for ch in CHANNELS}
-
-    # # 將查詢結果整理進 channel → source → domain 結構
-    # for row in rows:
-    #     channel = row.channel or "Direct"
-    #     source = row.source or "(direct)"
-    #     medium = row.medium or "(none)"
-    #     domain = row.domain or "(none)"
-    #     clicks = row.clicks
-
-    #     if channel not in channel_map:
-    #         # 新的 channel 動態補上（如果超出預設）
-    #         channel_map[channel] = {"channel": channel,
-    #                                 "total_clicks": 0, "sources": []}
-    #         source_lookup[channel] = {}
-
-    #     if source not in source_lookup[channel]:
-    #         source_obj = {
-    #             "source": source,
-    #             "total_clicks": 0,
-    #             "domains": []
-    #         }
-    #         channel_map[channel]["sources"].append(source_obj)
-    #         source_lookup[channel][source] = source_obj
-
-    #     channel_map[channel]["total_clicks"] += clicks
-    #     source_lookup[channel][source]["total_clicks"] += clicks
-    #     source_lookup[channel][source]["domains"].append({
-    #         "domain": domain,
-    #         "clicks": clicks
-    #     })
-
-    # # 最終結果
-    # return {
-    #     "channels": list(channel_map.values())
-    # }
     CHANNELS = [
         "Direct",
         "Organic Search",

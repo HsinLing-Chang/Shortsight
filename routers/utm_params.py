@@ -1,13 +1,13 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request, Query
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import APIRouter, Depends,  Query
+from fastapi.responses import JSONResponse
 from utils.dependencies import get_db
-from sqlalchemy import select, func, case, distinct, cast, Float
-from sqlalchemy.orm import Session, aliased
-from sqlalchemy.sql import literal_column, or_
+from sqlalchemy import select, func, case, distinct
+from sqlalchemy.orm import Session
+from sqlalchemy.sql import or_
 from typing import Annotated, Optional
 from utils.security import JWTtoken
-from database.model import UrlMapping, EventLog, UTMParams, EventTrafficSource
-from datetime import datetime, timedelta, date
+from database.model import UrlMapping, EventLog, UTMParams
+from datetime import timedelta, date
 from repositories.utm_params import get_source_medium, get_canpaign_source_medium, get_all_source_interactions, get_campaign_source_interactions, get_all_campaign_data, get_campaign_with_type
 router = APIRouter(prefix="/api", tags=["Utm"])
 
@@ -78,11 +78,11 @@ def get_all_campaign(db: Annotated[Session, Depends(get_db)], current_user=Depen
 def get_non_campaign_traffic(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user), start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
     first_seen_subq = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
         .subquery()
     )
 
@@ -99,32 +99,32 @@ def get_non_campaign_traffic(db: Annotated[Session, Depends(get_db)], current_us
 
     traffic_conditions = []
     if start_date:
-        traffic_conditions.append(EventTrafficSource.created_at >= start_date)
+        traffic_conditions.append(EventLog.created_at >= start_date)
     if end_date:
         traffic_conditions.append(
-            EventTrafficSource.created_at < end_date + timedelta(days=1))
+            EventLog.created_at < end_date + timedelta(days=1))
     stmt = (select(
-        EventTrafficSource.source,
-        EventTrafficSource.medium,
-        func.count(EventTrafficSource.id).label("total_interactions"),
+        EventLog.source,
+        EventLog.medium,
+        func.count(EventLog.id).label("total_interactions"),
         func.count(
             distinct(
-                case((new_user_cond, EventTrafficSource.visitor_id))
+                case((new_user_cond,  EventLog.visitor_id))
             )
         ).label("new_users")
     )
-        .select_from(EventTrafficSource)
-        .join(UrlMapping, UrlMapping.id == EventTrafficSource.mapping_id)
-        .outerjoin(first_seen_subq, EventTrafficSource.visitor_id == first_seen_subq.c.visitor_id)
+        .select_from(EventLog)
+        .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
+        .outerjoin(first_seen_subq,  EventLog.visitor_id == first_seen_subq.c.visitor_id)
         .where(
         UrlMapping.user_id == current_user.id,
         or_(
-            EventTrafficSource.campaign.is_(None),
-            EventTrafficSource.campaign == "",
+            EventLog.campaign.is_(None),
+            EventLog.campaign == "",
         ),
         *traffic_conditions
     )
-        .group_by(EventTrafficSource.source, EventTrafficSource.medium))
+        .group_by(EventLog.source,  EventLog.medium))
     result = db.execute(stmt).mappings().all()
     total_users = sum(row["total_interactions"] for row in result)
     total_new_users = sum(row["new_users"] for row in result)
@@ -162,11 +162,11 @@ def get_non_campaign_traffic(db: Annotated[Session, Depends(get_db)], current_us
 async def get_non_campaign_traffic_event_type(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user), event_type: str = "click", start_date: Optional[date] = Query(None), end_date: Optional[date] = Query(None)):
     first_seen_subq = (
         select(
-            EventTrafficSource.visitor_id,
-            func.min(EventTrafficSource.created_at).label("first_seen")
+            EventLog.visitor_id,
+            func.min(EventLog.created_at).label("first_seen")
         )
-        .where(EventTrafficSource.visitor_id.isnot(None))
-        .group_by(EventTrafficSource.visitor_id)
+        .where(EventLog.visitor_id.isnot(None))
+        .group_by(EventLog.visitor_id)
         .subquery()
     )
 
@@ -183,37 +183,37 @@ async def get_non_campaign_traffic_event_type(db: Annotated[Session, Depends(get
 
     traffic_conditions = []
     if start_date:
-        traffic_conditions.append(EventTrafficSource.created_at >= start_date)
+        traffic_conditions.append(EventLog.created_at >= start_date)
     if end_date:
         traffic_conditions.append(
-            EventTrafficSource.created_at < end_date + timedelta(days=1))
+            EventLog.created_at < end_date + timedelta(days=1))
 
     if event_type:
-        traffic_conditions.append(EventTrafficSource.event_type == event_type)
+        traffic_conditions.append(EventLog.event_type == event_type)
 
     stmt = (
         select(
-            EventTrafficSource.source,
-            EventTrafficSource.medium,
-            func.count(EventTrafficSource.id).label("total_interactions"),
+            EventLog.source,
+            EventLog.medium,
+            func.count(EventLog.id).label("total_interactions"),
             func.count(
                 distinct(
-                    case((new_user_cond, EventTrafficSource.visitor_id))
+                    case((new_user_cond,  EventLog.visitor_id))
                 )
             ).label("new_users")
         )
-        .select_from(EventTrafficSource)
-        .join(UrlMapping, UrlMapping.id == EventTrafficSource.mapping_id)
-        .outerjoin(first_seen_subq, EventTrafficSource.visitor_id == first_seen_subq.c.visitor_id)
+        .select_from(EventLog)
+        .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
+        .outerjoin(first_seen_subq,  EventLog.visitor_id == first_seen_subq.c.visitor_id)
         .where(
             UrlMapping.user_id == current_user.id,
             or_(
-                EventTrafficSource.campaign.is_(None),
-                EventTrafficSource.campaign == "",
+                EventLog.campaign.is_(None),
+                EventLog.campaign == "",
             ),
             *traffic_conditions
         )
-        .group_by(EventTrafficSource.source, EventTrafficSource.medium)
+        .group_by(EventLog.source,  EventLog.medium)
     )
 
     result = db.execute(stmt).mappings().all()

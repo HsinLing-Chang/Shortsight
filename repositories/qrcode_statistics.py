@@ -16,8 +16,6 @@ async def get_scan_event(db, id, user_id, one_month_ago):
                    UrlMapping.user_id == user_id,
                    EventLog.event_type == "scan",
                    EventLog.created_at >= one_month_ago,
-                   EventLog.device_type != "Bot",
-                   EventLog.app_source != "Bot",
                    )
             .group_by(func.date(EventLog.created_at))
             .order_by(func.date(EventLog.created_at))
@@ -42,8 +40,6 @@ async def get_scan_location(db, id, user_id, one_month_ago, limit=5,):
                    UrlMapping.user_id == user_id,
                    EventLog.event_type == "scan",
                    EventLog.created_at >= one_month_ago,
-                   EventLog.device_type != "Bot",
-                   EventLog.app_source != "Bot",
                    )
             .group_by(IpLocation.country)
             .order_by(desc("scans"))
@@ -76,8 +72,6 @@ async def get_device_browser(db, id, user_id,  one_month_ago):
                 UrlMapping.user_id == user_id,
                 EventLog.event_type == "scan",
                 EventLog.created_at >= one_month_ago,
-                EventLog.device_type != "Bot",
-                EventLog.app_source != "Bot",
             )
             .group_by(browser_group)
         )
@@ -103,8 +97,6 @@ async def get_device_os(db, id,  user_id, one_month_ago):
                 EventLog.event_type == "scan",
                 UrlMapping.user_id == user_id,
                 EventLog.created_at >= one_month_ago,
-                EventLog.device_type != "Bot",
-                EventLog.app_source != "Bot",
             )
             .group_by(EventLog.device_os)
         )

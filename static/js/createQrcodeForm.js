@@ -19,8 +19,6 @@ class CreateQrcodeForm {
       this.sourceInput = document.querySelector(".utm-source");
       this.mediumInput = document.querySelector(".utm-medium");
       this.campaignInput = document.querySelector(".utm-campaign");
-      this.contentInput = document.querySelector(".utm-content");
-      this.termInput = document.querySelector(".utm-term");
 
       this.createQrcodeBtn = document.querySelector(".qr-create-btn");
       if (this.createQrcodeBtn) {
@@ -53,8 +51,6 @@ class CreateQrcodeForm {
         utm_source: this.sourceInput.value.trim() || null,
         utm_medium: this.mediumInput.value.trim() || null,
         utm_campaign: this.campaignInput.value.trim() || null,
-        // utm_term: this.contentInput.value.trim() || null,
-        // utm_content: this.termInput.value.trim() || null,
       },
     };
   }
