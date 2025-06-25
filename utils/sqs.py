@@ -42,7 +42,7 @@ class SqsHandler():
         # )
         # print(response)
 
-    async def sqs_send_message(self, event_data):
+    def sqs_send_message(self, event_data):
         response = self.sqs.send_message(
             QueueUrl=self.q_uerl,
             MessageBody=json.dumps(event_data)
