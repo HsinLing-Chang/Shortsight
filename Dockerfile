@@ -7,11 +7,12 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN apt-get update && apt-get install -y curl
+
 COPY . .
 
 
 ARG MAXMIND_LICENSE_KEY
-
 
 RUN mkdir -p /app/data && \
     curl -L "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City&license_key=${MAXMIND_LICENSE_KEY}&suffix=tar.gz" \
