@@ -30,6 +30,7 @@ jobs:
         push: true
         pull: false
         tags: hsinling/shortsight:latest
+        no-cache: true 
         build-args: | 
           MAXMIND_LICENSE_KEY=${{ secrets.MAXMIND_LICENSE_KEY }}
 
