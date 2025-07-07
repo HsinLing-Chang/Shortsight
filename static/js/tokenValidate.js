@@ -1,5 +1,5 @@
 (async function () {
-  const responese = await fetch("/api/user/check_login");
+  const responese = await fetch("/api/user/status");
   const result = await responese.json();
   if (!result.ok) {
     window.location.replace("/signin");

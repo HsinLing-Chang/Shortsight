@@ -26,6 +26,11 @@ app.add_middleware(
 
 @app.get("/", include_in_schema=False)
 async def index(request: Request):
+    return FileResponse("./static/html/landingPage.html", media_type="text/html")
+
+
+@app.get("/home", include_in_schema=False)
+async def index(request: Request):
     return FileResponse("./static/html/index.html", media_type="text/html")
 
 

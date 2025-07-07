@@ -76,25 +76,6 @@ async def redirect_url(request: Request, links: str, db: Session = Depends(get_d
             "channel": traffic_info["channel"],
         }
         sqs.sqs_send_message(event_data)
-        # print(geolocation_info)
-        # new_Event = EventLog(
-        #     mapping_id=url_id,
-        #     visitor_id=visitor_id,
-        #     event_type="click",
-        #     referer=referer,
-        #     ip_address=ip,
-        #     device_type=device_result.get("device_type"),
-        #     device_browser=device_result.get("device_browser"),
-        #     device_os=device_result.get("device_os"),
-        #     app_source=device_result.get("app_source"),
-        #     domain=traffic_info["domain"],
-        #     source=traffic_info["source"],
-        #     medium=traffic_info["medium"],
-        #     campaign=traffic_info["campaign"],
-        #     channel=traffic_info["channel"],
-        # )
-        # db.add(new_Event)
-        # db.commit()
 
         return response
     except HTTPException as e:
@@ -106,18 +87,3 @@ async def redirect_url(request: Request, links: str, db: Session = Depends(get_d
     except Exception as e:
         print(f"未知錯誤：{e}")
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# @router.get("/l/{links}")
-# def redirect_url_loc(request: Request, links: str, db: Session = Depends(get_db)):
-
-#     info, referer = get_client_referer(request)
-#     print(f"referrer info: {info}, referrer: {referer}")
-#     stmt = select(UrlMapping).where(
-#         or_(UrlMapping.short_key == links, UrlMapping.uuid == links))
-#     mapping_url = db.execute(stmt).scalar_one_or_none()
-
-#     new_traffic_sourec = EventTrafficSource()
-
-#     response = RedirectResponse(url=target_url)
-#     return response

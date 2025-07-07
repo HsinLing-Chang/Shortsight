@@ -42,6 +42,8 @@ Shortsight is a lightweight, developer-friendly URL shortening service that turn
 
 ![Shortsight 系統架構圖](./static/Img/structure.png)
 
+## UI Examples
+
 ## Technical Highlights
 
 - ### Shortcode Generation Flow

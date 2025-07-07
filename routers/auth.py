@@ -59,7 +59,7 @@ def sign_out(response: Response):
     return response
 
 
-@router.get("/user/check_login")
+@router.get("/user/status")
 def checkLoginState(user=Depends(JWTtoken.get_current_user)):
     if user:
         return JSONResponse(content={"ok": True})
