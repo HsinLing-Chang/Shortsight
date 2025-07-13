@@ -66,9 +66,9 @@ class Campaign {
       container.appendChild(
         this.createElement("div", [], `${item.new_user_ratio} %`)
       );
-      // 最後一欄有 <span class="high">high</span>
+
       const spanWrapper = this.createElement("div");
-      const span = this.createElement("span", [], item.new_user_level); // 套上 high / medium / low class
+      const span = this.createElement("span", [], item.new_user_level);
       this.addLevelColor(span);
       spanWrapper.appendChild(span);
       container.appendChild(spanWrapper);
@@ -92,15 +92,12 @@ class Campaign {
     const hasDate = startDate && endDate;
     const hasEventType = eventType && eventType !== "all";
 
-    // 有 eventType（非 all/null）：用 `/campaign`
     if (hasEventType) {
       url = `/api/report/utm/campaign?event_type=${eventType}`;
       if (hasDate) {
         url += `&start_date=${startDate}&end_date=${endDate}`;
       }
-    }
-    // 無 eventType 或 eventType = all：用 `/campaigns`
-    else {
+    } else {
       url = `/api/report/utm/campaigns`;
       const params = [];
       if (startDate) params.push(`start_date=${startDate}`);
@@ -114,7 +111,7 @@ class Campaign {
   addLevelColor(level) {
     if (level.textContent == "High") {
       level.classList.add("high");
-    } else if (level.textContent == "Medium") {
+    } else if (level.textContent == "Moderate") {
       level.classList.add("medium");
     } else if (level.textContent == "Low") {
       level.classList.add("low");

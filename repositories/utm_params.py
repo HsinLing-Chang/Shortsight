@@ -2,86 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, func, case, distinct,  and_, or_
 from database.model import UrlMapping, UTMParams, EventLog
 from datetime import timedelta
-from typing import Union, List
-
-
-def summarize_utm_user_stats(result):
-    total_users = sum(row["total_interactions"] for row in result)
-    total_new_users = sum(row["new_users"] for row in result)
-    overall_ratio = round(total_new_users * 100 /
-                          total_users, 1) if total_users else 0.0
-    total_level = classify_new_user_ratio(overall_ratio, total_users)
-    final_data = []
-
-    for row in result:
-        total = row["total_interactions"]
-        new = row["new_users"]
-        ratio = round(new * 100 / total, 1) if total else 0.0
-        level = classify_new_user_ratio(ratio, total)
-        final_data.append({
-            "source": row["source"],
-            "medium": row["medium"],
-            "total_interactions": total,
-            "new_users": new,
-            "new_user_ratio": ratio,
-            "new_user_level": level
-        })
-    return {
-        "summary": {
-            "total_users": total_users,
-            "total_new_users": total_new_users,
-            "overall_ratio": overall_ratio,
-            "new_user_level": total_level
-        },
-        "data": final_data
-    }
-
-
-def summarize_campaign_stats(result):
-    total_users = sum(row["total_interactions"] for row in result)
-    total_new_users = sum(row["new_users"] for row in result)
-    overall_ratio = round(total_new_users * 100 /
-                          total_users, 1) if total_users else 0.0
-    total_level = classify_new_user_ratio(overall_ratio, total_users)
-
-    final_data = []
-    for row in result:
-        total = row["total_interactions"]
-        new = row["new_users"]
-        ratio = round(new * 100 / total, 1) if total else 0.0
-        level = classify_new_user_ratio(ratio, total)
-        final_data.append({
-            "campaign": row["campaign"] or "(none)",
-            "total_interactions": total,
-            "new_users": new,
-            "new_user_ratio": ratio,
-            "new_user_level": level
-        })
-
-    return {
-        "summary": {
-            "total_users": total_users,
-            "total_new_users": total_new_users,
-            "overall_ratio": overall_ratio,
-            "new_user_level": total_level
-        },
-        "data": final_data
-    }
-
-
-def classify_new_user_ratio(ratio: float, total) -> str:
-    if total < 5:
-        return "Unstable"
-    elif ratio >= 70:
-        return "Very High"
-    elif ratio >= 50:
-        return "High"
-    elif ratio >= 30:
-        return "Moderate"
-    elif ratio >= 10:
-        return "Low"
-    else:
-        return "Very Low"
+from services.utm_services import summarize_campaign_stats, summarize_utm_user_stats
 
 
 def get_first_seen_visitors_subquery():
@@ -252,6 +173,44 @@ async def fetch_campaign_by_eventlog_types(db, user_id,  start_date, end_date, e
 
     result = db.execute(stmt).mappings().all()
     return summarize_campaign_stats(result)
+
+
+async def fetch_other_traffic_by_eventlog_types(db, user_id,  start_date, end_date, event_type=None):
+
+    first_seen_visitors = get_first_seen_visitors_subquery()
+    new_user_condition = build_new_user_condition(
+        start_date, end_date, first_seen_visitors)
+
+    eventlog_filter_conditions = build_eventlog_filter_conditions(
+        event_type,  start_date, end_date)
+
+    stmt = (select(
+        EventLog.source,
+        EventLog.medium,
+        func.count(EventLog.id).label("total_interactions"),
+        func.count(
+            distinct(
+                case((new_user_condition,  EventLog.visitor_id))
+            )
+        ).label("new_users")
+    )
+        .select_from(EventLog)
+        .join(UrlMapping,
+              UrlMapping.id == EventLog.mapping_id
+              )
+        .outerjoin(first_seen_visitors,  EventLog.visitor_id == first_seen_visitors.c.visitor_id)
+        .where(
+        UrlMapping.user_id == user_id,
+        or_(
+            EventLog.campaign.is_(None),
+            EventLog.campaign == "",
+        ),
+        *eventlog_filter_conditions
+    )
+        .group_by(EventLog.source,  EventLog.medium))
+
+    result = db.execute(stmt).mappings().all()
+    return summarize_utm_user_stats(result)
 
 # async def fetch_sources_by_event_type(db: Session, user_id, start_date, end_date, event_type):
 #     """ALL scanS or clickS source/medium"""
@@ -631,41 +590,3 @@ async def fetch_campaign_by_eventlog_types(db, user_id,  start_date, end_date, e
 
     result = db.execute(stmt).mappings().all()
     return summarize_campaign_stats(result)
-
-
-async def fetch_other_traffic_by_eventlog_types(db, user_id,  start_date, end_date, event_type=None):
-
-    first_seen_visitors = get_first_seen_visitors_subquery()
-    new_user_condition = build_new_user_condition(
-        start_date, end_date, first_seen_visitors)
-
-    eventlog_filter_conditions = build_eventlog_filter_conditions(
-        event_type,  start_date, end_date)
-
-    stmt = (select(
-        EventLog.source,
-        EventLog.medium,
-        func.count(EventLog.id).label("total_interactions"),
-        func.count(
-            distinct(
-                case((new_user_condition,  EventLog.visitor_id))
-            )
-        ).label("new_users")
-    )
-        .select_from(EventLog)
-        .join(UrlMapping,
-              UrlMapping.id == EventLog.mapping_id
-              )
-        .outerjoin(first_seen_visitors,  EventLog.visitor_id == first_seen_visitors.c.visitor_id)
-        .where(
-        UrlMapping.user_id == user_id,
-        or_(
-            EventLog.campaign.is_(None),
-            EventLog.campaign == "",
-        ),
-        *eventlog_filter_conditions
-    )
-        .group_by(EventLog.source,  EventLog.medium))
-
-    result = db.execute(stmt).mappings().all()
-    return summarize_utm_user_stats(result)

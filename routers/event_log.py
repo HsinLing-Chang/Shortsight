@@ -8,8 +8,6 @@ from repositories.qrcode_statistics import get_scan_event, get_scan_location, ge
 from repositories.analytics_statistics import get_link_performance, get_all_interaction_counts, get_clicks_and_scans_ratio
 from typing import Annotated, Optional
 from datetime import datetime, timedelta, timezone, date
-from database.catch import redis_handler
-import json
 from database.model import UrlMapping, EventLog, IpLocation
 from sqlalchemy import select, func, case
 router = APIRouter(prefix="/api", tags=["report"])
@@ -18,17 +16,10 @@ router = APIRouter(prefix="/api", tags=["report"])
 @router.get("/report/click/{uuid}")
 async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
-    # cache_key = f"click_report:{current_user.id}:{uuid}"
-    # redis = await redis_handler.get_redis_client()
-    # cached = await redis.get(cache_key)
-    # referrer_result = get_referral(db, uuid, current_user.id, one_month_ago)
-    # print(referrer_result)
-    # if cached:
-    #     return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
+
     try:
         click_events, total = await get_cliek_event(db, uuid,  current_user.id, one_month_ago)
         location = await get_click_location(db, uuid, current_user.id, one_month_ago)
-        # referrer = await get_referrer(db, uuid, current_user.id, one_month_ago)
         device = await get_device(db, uuid, current_user.id, one_month_ago)
         data = {
             "total": total,
@@ -36,7 +27,6 @@ async def get_click_log(uuid: str, db: Annotated[Session, Depends(get_db)], curr
             "location": location,
             "device": device,
         }
-        # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
@@ -54,7 +44,6 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
     if not mapping_id:
         raise HTTPException(status_code=404, detail="URL not found")
 
-    # 抓出該網址所有 click 的來源資料
     stmt = (
         select(EventLog.channel,
                EventLog.source,
@@ -73,18 +62,12 @@ async def get_referrer_data(uuid: str, db: Annotated[Session, Depends(get_db)], 
     )
     result = db.execute(stmt).mappings().all()
     summary = summary_referrer(result)
-    # print(summary)
     return JSONResponse(content={"ok": True, "data": summary})
 
 
 @router.get("/report/scan/{id}")
 async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     one_month_ago = datetime.now(timezone.utc) - timedelta(days=28)
-    # cache_key = f"click_report:{current_user.id}:{id}"
-    # redis = await redis_handler.get_redis_client()
-    # cached = await redis.get(cache_key)
-    # if cached:
-    #     return JSONResponse(content={"ok": True, "data": json.loads(cached), "cached": True})
 
     try:
 
@@ -99,7 +82,6 @@ async def get_scan_log(id: int, db: Annotated[Session, Depends(get_db)], current
             "deviceBrowser": device_browser,
             "deviceOS": device_os
         }
-        # await redis.set(cache_key, json.dumps(data), ex=30)
         return JSONResponse(content={"ok": True, "data": data})
     except Exception as e:
         print(e)
@@ -192,15 +174,3 @@ async def get_geolocation_data(db: Annotated[Session, Depends(get_db)], current_
     data = [dict(row) for row in results]
 
     return JSONResponse(content={"ok": True, "data": data})
-
-
-# @router.get("/report/GA")
-# async def get_GA_data(db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
-#     # Channel
-#     CHANNELS = ["Direct", "Organic Search",
-#                 "Organic Social", "Organic Video", "Referral"]
-#     stmt = (
-#         select(
-#             EventTrafficSource.
-#         )
-#     )

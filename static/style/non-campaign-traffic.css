@@ -45,6 +45,10 @@ a {
   display: flex;
   align-items: center;
 }
+.grid-header {
+  border-bottom: 1px solid #ccc;
+  font-weight: 600;
+}
 .grid-header,
 .grid-content,
 .append {
