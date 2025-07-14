@@ -1,91 +1,20 @@
-from schemas.utm_params_schema import UTM_form
+from schemas.qrcode_schema import QrcodeForm, LinkWithQRcodeListResponse, LinkWithQRcodeResponse, UpdateQrcode
 from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel,  HttpUrl, field_validator
+from typing import Annotated
 from database.model import UrlMapping, QRCode
 from utils.dependencies import get_db
 from utils.security import JWTtoken
 from utils.S3 import aws_s3
-from sqlalchemy.orm import Session, selectinload,  joinedload
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import select, update, delete
 from sqlalchemy.exc import IntegrityError
-from typing import Annotated, List, Optional
 from utils.uuid_generator import uuid_generator
-import qrcode
-from datetime import datetime
-import re
-import io
+from services.qrcodes_service import create_qrcode_image
+
 from utils.S3 import aws_s3
-from pydantic import ConfigDict,  field_serializer, RootModel
+
 router = APIRouter(prefix="/api", tags=['qrcodes'])
-
-
-class QrcodeForm(BaseModel):
-    title: str
-    short_key: Optional[str] = None
-    target_url:  HttpUrl
-    utm_params: Optional[UTM_form] = None
-
-    @field_validator("short_key")
-    def vaildate_short_key(cls, val):
-        if val is None:
-            return val
-        if len(val) > 30:
-            raise HTTPException(
-                status_code=400, detail="Custom url must not exceed 30 characters in length.")
-        if not re.match(r'^[A-Za-z0-9_-]+$', val):
-            raise HTTPException(status_code=400,
-                                detail="Custom url may only contain English letters, numbers, underscores (_), or hyphens (-).")
-        return val
-
-
-class QrcodeResponse(BaseModel):
-    id: int
-    mappping_url: int
-    image_path: str
-    created_at:  datetime
-    model_config = ConfigDict(from_attributes=True)
-
-    @field_serializer("created_at")
-    def _fmt_created_at(self, dt: datetime) -> str:
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
-
-
-class LinkWithQRcodeResponse(BaseModel):
-    id: int
-    user_id: int
-    title: str
-    uuid: str
-    short_key: str | None
-    target_url: str
-    created_at:  datetime
-    qr_code: QrcodeResponse
-    model_config = ConfigDict(from_attributes=True)
-
-    @field_serializer("created_at")
-    def _fmt_created_at(self, dt: datetime) -> str:
-        return dt.strftime("%Y-%m-%d %H:%M:%S")
-
-
-class LinkWithQRcodeListResponse(RootModel):
-    root: List[LinkWithQRcodeResponse]
-
-
-class UpdateQrcode(BaseModel):
-    title: str
-
-
-def create_qrcode_image(uuid):
-    try:
-        url = f"https://s.ppluchuli.com/qr/{uuid}"
-        img = qrcode.make(url)
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
-        buf.seek(0)
-        return buf.getvalue()
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.post("/qrcodes")

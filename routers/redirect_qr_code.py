@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status, HTTPException, Request
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from utils.dependencies import get_db
-from sqlalchemy import select, or_
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from typing import Annotated
 from database.model import UrlMapping, EventLog, UTMParams

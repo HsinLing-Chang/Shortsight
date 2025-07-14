@@ -1,20 +1,15 @@
 const navItem = [
-  { element: document.querySelector(".home"), path: "/" },
+  { element: document.querySelector(".home"), path: "/home" },
   { element: document.querySelector(".links"), path: "/links" },
   { element: document.querySelector(".qrcodes"), path: "/qrcodes" },
   { element: document.querySelector(".analytics"), path: "/analytics" },
   { element: document.querySelector(".campaign"), path: "/campaign" },
 ];
-// const token = localStorage.getItem("access_token");
 
 navItem.forEach(({ element, path }) => {
   if (!element) return;
   element.addEventListener("click", (e) => {
     e.preventDefault();
-    // if (!token) {
-    //   window.location.href = "signin";
-    //   return;
-    // }
     window.location.href = path;
   });
 });
@@ -44,10 +39,11 @@ class SideBarController {
   }
   targetPage() {
     this.navItems.forEach((item) => {
+      console.log();
       const raw = item.dataset.text;
       const txt = raw.replace(/\s+/g, "").toLowerCase();
       const path = this.path.trim();
-      if (txt === path || (txt == "home" && path == "")) {
+      if (txt === path) {
         const activaIndicator = item.querySelector(".active-indicator");
         item.style.backgroundColor = "#DBEAFE";
         item.style.color = "#1E3A8A";
@@ -106,5 +102,4 @@ class SideBarController {
   }
 }
 
-// export default SideBarController;
 new SideBarController();

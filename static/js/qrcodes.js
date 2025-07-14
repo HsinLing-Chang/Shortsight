@@ -20,15 +20,7 @@ class QrcodeCard {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url); // 清理
-    // if (result.ok) {
-    //   const link = document.createElement("a");
-    //   link.href = result.data;
-    //   link.download = "my_qrcode.png";
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   document.body.removeChild(link);
-    // }
+    URL.revokeObjectURL(url);
   }
   getQrcodeDetail(id) {
     location.href = `/qrcodes/${id}`;
@@ -106,7 +98,6 @@ class QrcodeCard {
       const more = this.createElement("div", "more");
 
       // menu items
-      const editItem = this.createElement("div", [], "Edit");
       const deleteItem = this.createElement("div", [], "Delete");
       // delete 事件監聽
       deleteItem.addEventListener("click", () => {
@@ -115,17 +106,8 @@ class QrcodeCard {
         }
       });
       // 組合
-      more.appendChild(editItem);
       more.appendChild(deleteItem);
       dropDown.appendChild(more);
-      //
-      //   dropDown.innerHTML = `
-      //   <i class="fa-solid fa-caret-down"></i>
-      //   <div class="more">
-      //     <div>Edit</div>
-      //     <div>Delete</div>
-      //   </div>
-      // `;
 
       // download-image 功能
       const download = this.createElement("div", ["download-image", "icon"]);

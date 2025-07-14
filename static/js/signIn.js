@@ -38,9 +38,7 @@ class SignIn {
       });
       const data = await response.json();
       if (data.ok) {
-        // const token = data.token;
-        // localStorage.setItem("access_token", token);
-        window.location.href = "/";
+        window.location.href = "/home";
       } else if (data.error) {
         throw Error(data.message);
       }

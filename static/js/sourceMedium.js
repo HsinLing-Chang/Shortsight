@@ -115,7 +115,7 @@ class SourceMedium {
   addLevelColor(level) {
     if (level.textContent == "High") {
       level.classList.add("high");
-    } else if (level.textContent == "Medium") {
+    } else if (level.textContent == "Moderate") {
       level.classList.add("medium");
     } else if (level.textContent == "Low") {
       level.classList.add("low");

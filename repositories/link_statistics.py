@@ -107,57 +107,6 @@ async def get_device(db, uuid, user_id, one_month_ago):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-# def get_referral(db, uuid, user_id, one_month_ago):
-
-#     stmt = (select(
-#         EventTrafficSource.channel,
-#         EventTrafficSource.medium,
-#         EventTrafficSource.source,
-#         EventTrafficSource.domain,
-#         func.count().label("count"))
-#         .select_from(EventTrafficSource)
-#         .join(UrlMapping, UrlMapping.id == EventLog.mapping_id)
-#         .where(UrlMapping.user_id == user_id,
-#                UrlMapping.uuid == uuid,
-#                EventLog.created_at >= one_month_ago,
-#                )
-#         .group_by(
-#             EventTrafficSource.channel,
-#             EventTrafficSource.medium,
-#             EventTrafficSource.source,
-#             EventTrafficSource.domain,
-#     ))
-
-#     results = db.execute(stmt).mappings().all()
-#     # print(f"result: {results}")
-#     return build_referral(results)
-
-
-# def build_referral(results):
-#     channel_map = defaultdict(list)
-#     channel_totals = defaultdict(int)
-
-#     for row in results:
-#         item = {
-#             "source": row["source"],
-#             "domain": row["referrer_domain"],
-#             "medium": row["medium"],
-#             "count": row["count"]
-#         }
-
-#         channel_map[row["channel"]].append(item)
-#         channel_totals[row["channel"]] += row["count"]
-
-#     final_data = []
-#     for channel, sources in channel_map.items():
-#         final_data.append({
-#             "channel": channel,
-#             "total": channel_totals[channel],
-#             "sources": sources
-#         })
-#     print(final_data)
-#     return final_data
-
 def summary_referrer(rows):
     CHANNELS = [
         "Direct",

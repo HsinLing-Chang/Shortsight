@@ -18,23 +18,14 @@ router = APIRouter(prefix="/api", tags=["links"])
 async def create_short_url(url_form: URLForm, db: Annotated[Session, Depends(get_db)], current_user=Depends(JWTtoken.get_current_user)):
     """建立新短連結"""
     try:
-        # RESERVED_KEYS = ["docs",  "static", "health"]
-        # if url_form.short_key in RESERVED_KEYS:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_400_BAD_REQUEST, detail=f"{url_form.short_key} 是系統保留字，請換一個短碼。")
         uuid = await uuid_generator.generate_uuid()
-
-        # print(url_form.utm_params)
         new_utm_params = url_form.utm_params.to_model() if url_form.utm_params else None
         print(new_utm_params)
         mapping = UrlMapping(user_id=current_user.id, title=url_form.title, uuid=uuid,
                              short_key=url_form.short_key, target_url=str(url_form.target_url), utm=new_utm_params)
 
         db.add(mapping)
-        # 建立UTM參數
-
         db.commit()
-        # data = LinkResponse.model_validate(mapping).model_dump()
 
         return JSONResponse(content={"ok": True})
     except IntegrityError as e:

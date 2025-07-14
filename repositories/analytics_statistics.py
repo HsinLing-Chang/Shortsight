@@ -206,8 +206,6 @@ def get_clicks_and_scans_ratio(db, user_id):
         .join(UrlMapping, EventLog.mapping_id == UrlMapping.id)
         .where(
             UrlMapping.user_id == user_id,
-            EventLog.device_type != "Bot",
-            EventLog.app_source != "Bot"
         )
     )
     results = db.execute(stmt).mappings().first()
